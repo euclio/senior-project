@@ -1,0 +1,147 @@
+\documentclass[finalcopy,short]{srpaper}
+
+\usepackage{listings}
+
+\title{Senior Project Literature Review}
+\author{Andy Russell}
+\date{\today}
+\advisor{Professor Kim Bruce}
+
+\begin{document}
+\frontmatter
+
+\section{Introduction}
+
+Systems programming is an extremely important part of computing today. The raw
+speed and low-level access to hardware provided by languages of this nature are
+necessary for embedded systems, networking, and gaming, and any number of other
+applications. However, such power comes with inherent
+danger\footnote{Throughout this paper, when I refer to a concept or feature as
+    ``dangerous,'' I mean that it is error-prone or difficult to reason about,
+    especially if the errors that may arise from its use are resistant to
+    debugging.}.
+
+Mistakes in managing memory can lead to runtime crashes, or worse: security
+vulnerabilities such as buffer overflow or format string
+attacks~\cite{Shahriar:2012:MPS:2187671.2187673}. While there are many tools
+designed to allow programmers to catch such errors, the ideal solution would be
+to eliminate the burden of manual memory management. Other languages such as
+Java and C\#, inspired by this goal, have removed that need. However, due to
+their dependence on a virtual machine, they have sacrificed performance and the
+ability to interface with hardware~\cite{Alexandrescu:2010:DPL:1875434}. The
+languages examined in this paper, D and Rust, do not use a virtual machine, and
+instead take the speed and power of C++ while attempting to make code easier to
+write both from an expressiveness and correctness standpoint.
+
+\section{C++}
+
+C++ is a language developed in the early '80s by Bjarne Stroustrup. C++
+remains one of the most popular languages in the world. C++ The features
+particularly relevant to this paper are the C++ Macro Preprocessor and its
+memory management facilities.
+
+The C++ macro preprocessor is an integral part of the language. Perhaps the
+most common use of the feature is to \texttt{include} one file (the ``header'')
+within another. By defining the interface in the header, the implementation is
+kept inside a single source file, and any number of other source files may use
+the interface's implementation. While the macro preprocessor is a necessary
+part of the language, it is inherently dangerous. The preprocessor works by
+modifying the actual text of the program, which can lead to syntax errors or
+subtle bugs that are difficult to solve. Another use of the preprocessor is
+for conditional compilation, where different code should be compiled depending
+on various conditions such as the underlying architecture or character-encoding
+support. Stroustrup advises that the C++ preprocessor should only be used for
+these cases~\cite{stroustrup2013the}.
+
+C++'s memory management is similar in some respects to its ancestor, C. Instead
+of requesting and returning blocks of memory from the free store by use of
+\texttt{malloc()} and \texttt{free()}, a C++ programmer uses \texttt{new} and
+\texttt{delete}\footnote{C++ has separate operators for array allocation:
+    \texttt{new[]} and \texttt{delete[]}.}. The language inherits the
+requirement that the programmer must remember to \texttt{delete} all memory
+acquired by \texttt{new} to avoid memory leaks, and that the programmer should
+refrain from using deallocated or unallocated memory to prevent invoking
+undefined behavior~\cite{stroustrup2013the}. Undefined behavior is
+characterized by the \textit{lack} of a definition of what an implementation of
+C++ should do in a given situation~\cite{iso/iec}. In other words, if a program
+incurs undefined behavior, then an implementation is in no way required to act
+in any particular way. The program may not compile, may crash at runtime, or
+act in any number of ways. Clearly it is impossible to reason about the
+correctness of a program that causes undefined behavior, so C++ programmers
+must avoid it at all costs.
+
+C++ programmers are well-aware of the problems that arise from using
+\texttt{new} and \texttt{delete} improperly. In fact, Stroustrup warns that
+``naked \texttt{new}'' (using \texttt{new} to allocate an object directly)
+ought to be avoided. Instead, he advises programmers to use stack-based
+allocation when possible, and in other cases use manager objects such as
+\texttt{unique\_ptr} and \texttt{shared\_ptr}\footnote{These containers were
+    introduced in C++11.}. This idiom is known as ``Resource Acquisition Is
+Initialization'', or RAII~\cite{stroustrup2013the}. These containers help
+abstract memory management away from the programmer by ensuring \texttt{delete}
+is called when the pointer goes out of scope.
+
+\section{D}
+
+D was created in 2001 by Walter Bright. From the name, it is easy to see that D
+has drawn much inspiration from C++, as C++ did from C. However, D has made a
+number of backwards-incompatible changes from C++ in the process of achieving
+its design goals. The D website cites a number of reasons for why D is
+necessary. Most relevant to this paper are its assertions about the inherent
+complexity in C++ due to the sheer number of features present in the language,
+the effort needed to explicitly manage memory, the difficulty in tracking down
+pointer bugs, and the hindrance of backwards compatibility with
+C~\cite{Doverview}.
+
+D handles memory management through its garbage collector. Classes are
+automatically allocated on the heap, and all other data is created on the
+stack. The garbage collector frees any memory that has gone out of scope
+(though not necessarily immediately after). This removes the need for the
+programmer to explicitly allocate memory. If the programmer wishes to obtain
+RAII behavior, D provides syntax to execute code after variables go out of
+scope through destructors and scope guards~\cite{cppford}.
+
+D also has an answer for the C++ preprocessor. The language contains a number
+of features that obviate its need. For example, inclusion is handled by
+modules, that handles imports of symbols from other files. This also removes
+the need for include guards, because each symbol is only guaranteed to be
+imported once. Conditional compilation is achieved through the
+\texttt{version} keyword. D also contains an aggressive inliner, which removes
+the need to implement small functions as macros~\cite{pretod}.
+
+\section{Rust}
+
+Rust is a quite new programming language developed primarily by Mozilla
+starting in 2012. Rust aims to give programmers enough power to access the
+computer's hardware while providing ``strong guarantees about isolation,
+concurrency, and memory safety''~\cite{Matsakis:2014:RL:2663171.2663188}.
+Syntactically, Rust is a more radical departure from C++ than D. However, it
+has similar design goals.
+
+One of the interesting features of Rust is its guarantees about heap access.
+In Rust, if you were to allocate an int on the heap, you might write
+
+\begin{lstlisting}[language=Rust]
+    let x = box 5i;
+\end{lstlisting}
+
+This code allocates an This acts similarly to a \texttt{unique\_ptr} would in C++. It guarantees that
+you cannot forget to free the memory, and that the memory is not used after
+the free. Rust's semantics are more powerful than this, however. Rust
+guarantees that ``no other writable pointers alias to this heap memory'',
+meaning that it is impossible for multiple objects to write to this memory
+(unless the programmer were to use an Rc pointer, which allows multiple
+readers)~\cite{RustPointerGuide}.
+
+In lieu of the preprocessor, Rust has an extremely powerful macro system.
+Rust macros operate on the abstract syntax tree of the program, rather than on
+the text. This allows macros to be type-safe and extend the language itself.
+In Rust, \texttt{println} is a macro that performs type-checking on its
+arguments to ensure that the format string contains the proper number of
+format placeholders for the arguments. In other languages, it might be
+possible to check this with a special code path in the compiler, but in Rust
+the language itself does the checking.
+
+\nocite{*}
+\bibliography{senior-project}
+\end{document}
