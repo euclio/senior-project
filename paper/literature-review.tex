@@ -17,28 +17,29 @@ speed and low-level access to hardware provided by languages of this nature are
 necessary for embedded systems, networking, and gaming, and any number of other
 applications. However, such power comes with inherent
 danger\footnote{Throughout this paper, when I refer to a concept or feature as
-    ``dangerous,'' I mean that it is error-prone or difficult to reason about,
-    especially if the errors that may arise from its use are resistant to
-    debugging.}.
+``dangerous,'' I mean that it is error-prone or difficult to reason about,
+especially if the errors that may arise from its use are resistant to
+debugging.}.
 
-Mistakes in managing memory can lead to runtime crashes, or worse: security
+Mistakes in managing memory can lead to runtime crashes or security
 vulnerabilities such as buffer overflow or format string
 attacks~\cite{Shahriar:2012:MPS:2187671.2187673}. While there are many tools
 designed to allow programmers to catch such errors, the ideal solution would be
 to eliminate the burden of manual memory management. Other languages such as
 Java and C\#, inspired by this goal, have removed that need. However, due to
 their dependence on a virtual machine, they have sacrificed performance and the
-ability to interface with hardware~\cite{Alexandrescu:2010:DPL:1875434}. The
-languages examined in this paper, D and Rust, do not use a virtual machine, and
-instead take the speed and power of C++ while attempting to make code easier to
-write both from an expressiveness and correctness standpoint.
+ability to interface directly with
+hardware~\cite{Alexandrescu:2010:DPL:1875434}. The languages examined in this
+paper, D and Rust, do not use a virtual machine or runtime. The languages aim
+to match the low-level speed and power of C++ while attempting to make code
+easier to write both from an expressiveness and correctness standpoint.
 
 \section{C++}
 
-C++ is a language developed in the early '80s by Bjarne Stroustrup. C++
-remains one of the most popular languages in the world. C++ The features
-particularly relevant to this paper are the C++ Macro Preprocessor and its
-memory management facilities.
+C++ is a language developed in the early '80s by Bjarne Stroustrup. C++ remains
+one of the most popular languages in the world. The features particularly
+relevant to this paper are the C++ macro preprocessor and its memory management
+facilities.
 
 The C++ macro preprocessor is an integral part of the language. Perhaps the
 most common use of the feature is to \texttt{include} one file (the ``header'')
@@ -86,24 +87,23 @@ is called when the pointer goes out of scope.
 D was created in 2001 by Walter Bright. From the name, it is easy to see that D
 has drawn much inspiration from C++, as C++ did from C. However, D has made a
 number of backwards-incompatible changes from C++ in the process of achieving
-its design goals. The D website cites a number of reasons for why D is
-necessary. Most relevant to this paper are its assertions about the inherent
-complexity in C++ due to the sheer number of features present in the language,
-the effort needed to explicitly manage memory, the difficulty in tracking down
-pointer bugs, and the hindrance of backwards compatibility with
-C~\cite{Doverview}.
+its design goals. The D website cites a number of reasons why D is necessary.
+Most relevant to this paper are its assertions about the inherent complexity in
+C++ due to the sheer number of features present in the language, the effort
+needed to explicitly manage memory, the difficulty in tracking down pointer
+bugs, and the hindrance of backwards compatibility with C~\cite{Doverview}.
 
 D handles memory management through its garbage collector. Classes are
 automatically allocated on the heap, and all other data is created on the
 stack. The garbage collector frees any memory that has gone out of scope
 (though not necessarily immediately after). This removes the need for the
-programmer to explicitly allocate memory. If the programmer wishes to obtain
-RAII behavior, D provides syntax to execute code after variables go out of
-scope through destructors and scope guards~\cite{cppford}.
+programmer to explicitly allocate and deallocate memory. If the programmer
+wishes to obtain RAII behavior, D provides syntax to execute code after
+variables go out of scope through destructors and scope guards~\cite{cppford}.
 
 D also has an answer for the C++ preprocessor. The language contains a number
 of features that obviate its need. For example, inclusion is handled by
-modules, that handles imports of symbols from other files. This also removes
+modules, which handle imports of symbols from other files. This also removes
 the need for include guards, because each symbol is only guaranteed to be
 imported once. Conditional compilation is achieved through the
 \texttt{version} keyword. D also contains an aggressive inliner, which removes
@@ -125,9 +125,9 @@ In Rust, if you were to allocate an int on the heap, you might write
     let x = box 5i;
 \end{lstlisting}
 
-This code allocates an This acts similarly to a \texttt{unique\_ptr} would in C++. It guarantees that
-you cannot forget to free the memory, and that the memory is not used after
-the free. Rust's semantics are more powerful than this, however. Rust
+This code acts similarly to a \texttt{unique\_ptr} would in C++. It guarantees
+that you cannot forget to free the memory, and that the memory is not used
+after the free. Rust's semantics are more powerful than this, however. Rust
 guarantees that ``no other writable pointers alias to this heap memory'',
 meaning that it is impossible for multiple objects to write to this memory
 (unless the programmer were to use an Rc pointer, which allows multiple
