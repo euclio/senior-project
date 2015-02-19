@@ -219,8 +219,40 @@ integers. The linked list should support:
 * A method to retreive the head of the list.
 * A method to retrieve the tail of the list.
 
-The LinkedList class should be defined as `insert(index, element)`,
-`delete(index)`, `remove(index)`, `size()`, `head()`, and `tail()`.
+The IntegerLinkedList class should implement the following Java-like interface:
+
+```java
+/**
+ * A linked list containing only integers.
+ */
+interface IntegerLinkedList {
+  /**
+   * Inserts an element into the linked list at the specified index.
+   */
+  public void insert(int index, int element);
+
+  /**
+   * Removes an element from the specified index.
+   * @return The element that was removed.
+   */
+  public int delete(int index);
+
+  /**
+   * Returns the number of integers in the linked list.
+   */
+  public int size();
+
+  /**
+   * Returns the first element of the linked list.
+   */
+  public int head();
+
+  /**
+   * Returns the last element of the linked list.
+   */
+  public int tail();
+}
+```
 
 #### Skills covered
 
@@ -241,8 +273,30 @@ The array list should support:
 * Retrieval in O(1) time.
 * A method to retrieve the size.
 
-The ArrayList class should have the following method definitions: `insert(index,
-element)`, `remove(index)`, `get(index)`, and `size()`.
+The ArrayList class should implement the following Java-like interface:
+
+```java
+/**
+ * An array that dynamically resizes as elements are added.
+ */
+interface ArrayList<E> {
+  /**
+   * Inserts an element into the array at the specified index.
+   */
+  public void insert(int index, E element);
+
+  /**
+   * Removes an element from the specified index.
+   * @return The element that was removed.
+   */
+  public E delete(int index);
+
+  /**
+   * Returns the number of integers in the array.
+   */
+  public int size();
+}
+```
 
 #### Skills covered
 
@@ -267,6 +321,7 @@ elements in a subarray is less than 10, you should not fork a new thread.
 
 Write an interpreter for the [brainfsck][brainfsck] programming language
 (thankfully, you are not required to write any brainfsck programs on your own).
+
 Your interpreter should take in a file name as the first argument to the
 program, and respond to standard input and output as specified in [this
 Wikipedia article](http://en.wikipedia.org/wiki/Brainfuck#Commands). Hint: your
