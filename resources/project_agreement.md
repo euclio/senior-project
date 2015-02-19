@@ -193,14 +193,17 @@ Sentence boundaries occur at one of "." (periods), "?" or "!", except that
   boundaries.
 * Periods followed by whitespace and then an upper case letter, but preceded by
   any of a short list of titles are not sentence boundaries. Sample titles
-  include Mr., Mrs., Dr., and so on.
+  include Mr., Mrs., Dr., Jr.
 * Periods internal to a sequence of letters with no adjacent whitespace are not
   sentence boundaries (for example, www.aptex.com, or e.g).
 * Periods followed by certain kinds of punctuation (notably comma and more
   periods) are probably not sentence boundaries.
 
-Write a function `sentenceSplitter(string)` that, given a string, prints each
-sentence on a separate line.
+Write a function `splitSentences(string input)` that, given a string, prints
+each sentence on a separate line.
+
+<small>_Note:_ For simplicity, we will assume that we only have one space between
+each sentence.</small>
 
 #### Skills covered
 
