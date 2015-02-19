@@ -40,18 +40,60 @@ Logic error    | Accidentally iterated one time too many          | Run-time
 Resource error | Used a freed pointer                             | Run-time
 
 In short, if the compiler spits out an error, or you have to change your code
-after you noticed something didn't work, log it!
+after you noticed something didn't work, log it! The error logs are key to my
+study so please take care that they are accurate.
 
 ### Implementation
 
-Each volunteer will be chosen to implement their series of programs in D or
+Each volunteer will be selected to implement their series of programs in D or
 Rust.
 
-Please try to keep to your normal development process as much as possible. If
-your program works to your satisfaction, you may consider it done. I am only
-interested in the development process, so as long as you spend a significant
-amount of time on each program, it doesn't matter if your program "works" in the
-end. Your work will be kept anonymous.
+#### Resources
+
+In order to keep the learning environment as free of bias as possible, the
+resources you may use to learn Rust and D should be limited to the following
+sites (i.e., no StackOverflow, no IRC, etc.):
+
+##### Rust (note the docs are pinned to the 1.0.0-alpha release)
+
+* [Rust Documentation](http://doc.rust-lang.org/1.0.0-alpha/index.html)
+* [Rust by Example](http://rustbyexample.com/)
+
+<small>Note: since Rust is changing so rapidly, there is a chance that Rust by
+Example will be outdated. The official documentation will be correct,
+however.</small>
+
+##### D
+
+* [D Reference](http://dlang.org/intro.html)
+* [Programming in D](http://ddili.org/ders/d.en/index.html)
+
+If you would like additional help, you may contact me in which case I will
+decide to offer help at my own discretion. I will offer help with:
+
+* Algorithmic Questions
+* Clarification
+* Installing the languages
+
+I will not:
+
+* Look at your code
+* Help you solve compile errors
+
+You are free to use whatever editor you wish. Please install a syntax
+highlighting package for your editor; I know that packages exist for Sublime
+Text, emacs, and vim. Please do _not_ install any autocomplete packages, as
+these may skew the results of the study.
+
+#### Development
+
+There will be test cases provided in order for you to test your implementation.
+However, there is no problem if your program does not pass all cases. As long as
+you spend a significant amount of time on each program (say, 90 minutes), it
+doesn't matter if your program "works" in the end.
+
+I may use snippets of your code in my final paper, in which case your work will
+be kept anonymous.
 
 ## Installation
 
@@ -132,7 +174,120 @@ you may skip step 1, as the dependencies are already installed.
     rustc 1.0.0-dev
     ```
 
+## Programming
+
+You will be asked to implement the following programs (listed in order from
+easiest to hardest).
+
+### Sentence Splitter ([source][sentence-splitter])
+
+Define a function capable of splitting a text into sentences. The standard set
+of heuristics for sentence splitting includes (but isn't limited to) the
+following rules:
+
+Sentence boundaries occur at one of "." (periods), "?" or "!", except that
+
+* Periods followed by whitespace followed by a lower case letter are not
+  sentence boundaries.
+* Periods followed by a digit with no intervening whitespace are not sentence
+  boundaries.
+* Periods followed by whitespace and then an upper case letter, but preceded by
+  any of a short list of titles are not sentence boundaries. Sample titles
+  include Mr., Mrs., Dr., and so on.
+* Periods internal to a sequence of letters with no adjacent whitespace are not
+  sentence boundaries (for example, www.aptex.com, or e.g).
+* Periods followed by certain kinds of punctuation (notably comma and more
+  periods) are probably not sentence boundaries.
+
+Write a function `sentenceSplitter(string)` that, given a string, prints each
+sentence on a separate line.
+
+#### Skills covered
+
+* String manipulation
+* Branching
+
+### Integer Linked List
+
+Define a [linked list][singly-linked-list] data structure that operates on
+integers. The linked list should support:
+
+* Insertion in O(n) time.
+* Deletion in O(n) time.
+* Retrieval in O(n) time.
+* A method to retrieve the size.
+* A method to retreive the head of the list.
+* A method to retrieve the tail of the list.
+
+The LinkedList class should be defined as `insert(index, element)`,
+`delete(index)`, `remove(index)`, `size()`, `head()`, and `tail()`.
+
+#### Skills covered
+
+* Object-orientation
+* Pointer manipulation
+* Memory allocation
+
+### Generic Array List
+
+Implement an array list class (also known as a dynamic array). Unlike the linked
+list class, this class should support generic elements, like ArrayList<T> in
+Java. You should use templates (D) or generics (Rust) to implement this class.
+
+The array list should support:
+
+* Insertion in amortized O(1) time.
+* Deletion in O(n) time.
+* Retrieval in O(1) time.
+* A method to retrieve the size.
+
+The ArrayList class should have the following method definitions: `insert(index,
+element)`, `remove(index)`, `get(index)`, and `size()`.
+
+#### Skills covered
+
+* Object-orientation
+* Generic programming
+* Memory allocation
+
+### Parallel Mergesort
+
+Implement the [parallel mergesort
+algorithm](http://en.wikipedia.org/wiki/Merge_sort#Parallel_merge_sort). This
+algorithm should use [std.parallelism] (D) or [std::thread] (Rust). You should
+also implement a sequential threshold of 10, meaning that if the number of
+elements in a subarray is less than 10, you should not fork a new thread.
+
+#### Skills covered
+
+* Recursion
+* Concurrency
+
+### Brainfsck Interpreter
+
+Write an interpreter for the [brainfsck][brainfsck] programming language
+(thankfully, you are not required to write any brainfsck programs on your own).
+Your interpreter should take in a file name as the first argument to the
+program, and respond to standard input and output as specified in [this
+Wikipedia article](http://en.wikipedia.org/wiki/Brainfuck#Commands). Hint: your
+interpreter may need to perform multiple passes on the input to handle brackets.
+
+#### Skills covered
+* File I/O
+* Pointer manipulation
+
+## Conclusion
+
+Thank you again for volunteering! If you would like to contact me, I may be
+reached on Facebook, through email at acr02011@mymail.pomona.edu, or through
+my phone at (314) 440-8830.
+
 [rust]: https://github.com/rust-lang/rust
 [rust-installers]: http://www.rust-lang.org/install.html
 [d-binary]: http://ftp.digitalmars.com/dinstaller.exe
 [d-install]: ./install-d.sh
+[singly-linked-list]: http://en.wikipedia.org/wiki/Linked_list#Singly_linked_list
+[brainfsck]: http://esolangs.org/wiki/Brainfuck
+[sentence-splitter]: http://www.ling.gu.se/~lager/python_exercises.html
+[std.parallelism]: http://dlang.org/phobos/std_parallelism.html
+[std::thread]: http://doc.rust-lang.org/std/thread/
