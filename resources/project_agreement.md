@@ -43,6 +43,13 @@ In short, if the compiler spits out an error, or you have to change your code
 after you noticed something didn't work, log it! The error logs are key to my
 study so please take care that they are accurate.
 
+#### Rust Note
+
+Since Rust is rather unstable, you might receive warnings about deprecated or
+unstable features. You may fix these, and you do *not* have to include them in
+your logs. However, if you are unsure if an error should be included or not,
+please include it anyways.
+
 ### Implementation
 
 Each volunteer will be selected to implement their series of programs in D or
@@ -154,11 +161,11 @@ Rust is a very volatile language, with breaking changes being brought into the
 master branch almost every day. Most developers who use Rust use the nightly
 releases which means that they must constantly update their code to deal with
 the most recent breaking changes. Since I do not want to introduce any
-additional overhead to the project, we will be sticking to the __1.0.0-alpha__
+additional overhead to the project, we will be sticking to the __1.0.0-alpha.2__
 release of Rust. Please ensure that you use this version in order to keep source
 compatibility during your time working on the project.
 
-You may install Rust using one of the 1.0.0-alpha (__not nightly__) binary
+You may install Rust using one of the 1.0.0-alpha.2 (__not nightly__) binary
 installers [located here][rust-installers].
 
 If you have problems with the binary installers, you may install Rust from
@@ -178,7 +185,7 @@ you may skip step 1, as the dependencies are already installed.
 
     ```sh
     $ git clone https://github.com/rust-lang/rust.git && cd rust
-    $ git checkout 1.0.0-alpha
+    $ git checkout 1.0.0-alpha.2
     $ ./configure --prefix=$PWD
     $ make -j5 && make install
     ```
