@@ -268,15 +268,22 @@ The IntegerLinkedList class should implement the following Java-like interface:
  */
 interface IntegerLinkedList {
   /**
-   * Inserts an element into the linked list at the specified index.
+   * Inserts an element into the linked list at the specified index, shifting
+   * any elements already in its position down.
    */
   public void insert(int index, int element);
 
   /**
-   * Removes an element from the specified index.
+   * Removes an element from the specified index, shifting any elements already
+   * in the list back up.
    * @return The element that was removed.
    */
-  public int delete(int index);
+  public int remove(int index);
+
+  /**
+   * Retrieves an element at the specified position
+   */
+  public int get(int index);
 
   /**
    * Returns the number of integers in the linked list.
@@ -322,18 +329,25 @@ The ArrayList class should implement the following Java-like interface:
  */
 interface ArrayList<E> {
   /**
-   * Inserts an element into the array at the specified index.
+   * Inserts an element into the array at the specified index, shifting any
+   * elements already in the list down.
    */
   public void insert(int index, E element);
 
   /**
-   * Removes an element from the specified index.
+   * Removes an element from the specified index, shifting any elements past its
+   * position back up.
    * @return The element that was removed.
    */
-  public E delete(int index);
+  public E remove(int index);
 
   /**
-   * Returns the number of integers in the array.
+   * Retrieves an element at the specified index.
+   */
+  public E get(int index);
+
+  /**
+   * Returns the number of elements in the array.
    */
   public int size();
 }
