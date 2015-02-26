@@ -1,0 +1,6 @@
+[submodule "examples/cmake/Modules/RustCMake"]
+	path = examples/cmake/Modules/RustCMake
+	url = https://github.com/SiegeLord/RustCMake
+[submodule "examples/cmake/Modules/cmake-d"]
+	path = examples/cmake/Modules/cmake-d
+	url = https://github.com/dcarp/cmake-d
