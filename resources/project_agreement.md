@@ -74,7 +74,7 @@ you will likely find other sections helpful:
 * [Member Functions](http://ddili.org/ders/d.en/member_functions.html)
 * [Pointers](http://ddili.org/ders/d.en/pointers.html)
 * [Templates](http://ddili.org/ders/d.en/templates.html)
-* [Data Sharing Concurrency](http://ddili.org/ders/d.en/concurrency_shared.html)
+* [Parallelism](http://ddili.org/ders/d.en/parallelism.html)
 * [Files](http://ddili.org/ders/d.en/files.html)
 
 ##### Rust (note the docs are pinned to the 1.0.0-alpha.2 release)
@@ -82,7 +82,7 @@ you will likely find other sections helpful:
 * [Rust Documentation](http://doc.rust-lang.org/1.0.0-alpha.2/index.html)
 * [Rust by Example](http://rustbyexample.com/)
 
-<small>Note: since Rust is changing so rapidly, there is a chance that Rust by
+<small>_Note:_ since Rust is changing so rapidly, there is a chance that Rust by
 Example will be outdated. The official documentation and associated book will be
 correct, however.</small>
 
@@ -106,6 +106,7 @@ decide to offer help at my own discretion. I will offer help with:
 * Algorithmic Questions
 * Clarification
 * Installing the languages
+* Locating information about the languages in the books or docs
 
 I will not:
 
@@ -210,6 +211,11 @@ you may skip step 1, as the dependencies are already installed.
 
 You will be asked to implement the following programs (listed in order from
 easiest to hardest).
+
+<small>_Note:_ While I don't expect you to handle *all* errors that your program
+might run into, if you run into exceptional conditions (that is, empty input,
+invalid indices, etc.), please handle the errors as you feel fit. This could
+include throwing an exception or returning an `Error` object.</small>
 
 ### Sentence Splitter ([source][sentence-splitter])
 
