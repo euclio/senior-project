@@ -54,19 +54,44 @@ In order to keep the learning environment as free of bias as possible, the
 resources you may use to learn Rust and D should be limited to the following
 sites (i.e., no StackOverflow, no IRC, etc.):
 
-##### Rust (note the docs are pinned to the 1.0.0-alpha release)
-
-* [Rust Documentation](http://doc.rust-lang.org/1.0.0-alpha/index.html)
-* [Rust by Example](http://rustbyexample.com/)
-
-<small>Note: since Rust is changing so rapidly, there is a chance that Rust by
-Example will be outdated. The official documentation will be correct,
-however.</small>
-
 ##### D
 
 * [D Reference](http://dlang.org/intro.html)
 * [Programming in D](http://ddili.org/ders/d.en/index.html)
+
+You should read the following resources before getting started with D, though
+you will likely find other sections helpful:
+
+* [All Chapters up to Strings](http://ddili.org/ders/d.en/index.html)
+* [Lifetimes](http://ddili.org/ders/d.en/lifetimes.html)
+* [Member Functions](http://ddili.org/ders/d.en/member_functions.html)
+* [Pointers](http://ddili.org/ders/d.en/pointers.html)
+* [Templates](http://ddili.org/ders/d.en/templates.html)
+* [Data Sharing Concurrency](http://ddili.org/ders/d.en/concurrency_shared.html)
+* [Files](http://ddili.org/ders/d.en/files.html)
+
+##### Rust (note the docs are pinned to the 1.0.0-alpha.2 release)
+
+* [Rust Documentation](http://doc.rust-lang.org/1.0.0-alpha.2/index.html)
+* [Rust by Example](http://rustbyexample.com/)
+
+<small>Note: since Rust is changing so rapidly, there is a chance that Rust by
+Example will be outdated. The official documentation and associated book will be
+correct, however.</small>
+
+You should read the following resources before getting starting with Rust,
+though you will likely find other sections helpful:
+
+* [All of Chapter 2: Basics](http://doc.rust-lang.org/1.0.0-alpha.2/book/basic.html) (skip the installation chapter)
+* [Method Syntax](http://doc.rust-lang.org/1.0.0-alpha.2/book/method-syntax.html) (classes)
+* [Pointers](http://doc.rust-lang.org/1.0.0-alpha.2/book/pointers.html) and
+  [Ownership](http://doc.rust-lang.org/1.0.0-alpha.2/book/ownership.html)
+* [Generics](http://doc.rust-lang.org/1.0.0-alpha.2/book/generics.html)
+* [Concurrency](http://doc.rust-lang.org/1.0.0-alpha.2/book/concurrency.html)
+* [File I/O](http://rustbyexample.com/file.html)
+
+
+##### Additional Help
 
 If you would like additional help, you may contact me in which case I will
 decide to offer help at my own discretion. I will offer help with:
