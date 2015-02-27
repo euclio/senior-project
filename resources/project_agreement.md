@@ -291,7 +291,7 @@ my phone at (314) 440-8830.
 [rust-installers]: http://www.rust-lang.org/install.html
 [rust-resources]: ./rust_resources.md
 [d-binary]: http://ftp.digitalmars.com/dinstaller.exe
-[d-install]: ./install-d.sh
+[d-install]: ./install_d.sh
 [d-resources]: ./d_resources.md
 [singly-linked-list]: http://en.wikipedia.org/wiki/Linked_list#Singly_linked_list
 [brainfsck]: http://esolangs.org/wiki/Brainfuck
