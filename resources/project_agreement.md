@@ -61,43 +61,6 @@ In order to keep the learning environment as free of bias as possible, the
 resources you may use to learn Rust and D should be limited to the following
 sites (i.e., no StackOverflow, no IRC, etc.):
 
-##### D
-
-* [D Reference](http://dlang.org/intro.html)
-* [Programming in D](http://ddili.org/ders/d.en/index.html)
-
-You should read the following resources before getting started with D, though
-you will likely find other sections helpful:
-
-* [All Chapters up to Strings](http://ddili.org/ders/d.en/index.html)
-* [Lifetimes](http://ddili.org/ders/d.en/lifetimes.html)
-* [Member Functions](http://ddili.org/ders/d.en/member_functions.html)
-* [Pointers](http://ddili.org/ders/d.en/pointers.html)
-* [Templates](http://ddili.org/ders/d.en/templates.html)
-* [Parallelism](http://ddili.org/ders/d.en/parallelism.html)
-* [Files](http://ddili.org/ders/d.en/files.html)
-
-##### Rust (note the docs are pinned to the 1.0.0-alpha.2 release)
-
-* [Rust Documentation](http://doc.rust-lang.org/1.0.0-alpha.2/index.html)
-* [Rust by Example](http://rustbyexample.com/)
-
-<small>_Note:_ since Rust is changing so rapidly, there is a chance that Rust by
-Example will be outdated. The official documentation and associated book will be
-correct, however.</small>
-
-You should read the following resources before getting starting with Rust,
-though you will likely find other sections helpful:
-
-* [All of Chapter 2: Basics](http://doc.rust-lang.org/1.0.0-alpha.2/book/basic.html) (skip the installation chapter)
-* [Method Syntax](http://doc.rust-lang.org/1.0.0-alpha.2/book/method-syntax.html) (classes)
-* [Pointers](http://doc.rust-lang.org/1.0.0-alpha.2/book/pointers.html) and
-  [Ownership](http://doc.rust-lang.org/1.0.0-alpha.2/book/ownership.html)
-* [Generics](http://doc.rust-lang.org/1.0.0-alpha.2/book/generics.html)
-* [Concurrency](http://doc.rust-lang.org/1.0.0-alpha.2/book/concurrency.html)
-* [File I/O](http://rustbyexample.com/file.html)
-
-
 ##### Additional Help
 
 If you would like additional help, you may contact me in which case I will
@@ -136,76 +99,8 @@ headache I recommend either dual-booting or running a VM of a Linux distro such
 as Ubuntu, or using the lab Macs. I've set up `project` with the needed
 dependencies of each language as well.
 
-### D
-
-D has a number of compiler implementations, but we will be using `dmd`, the
-reference compiler.
-
-On Windows or Macs, you may install D by using the [binary installer][d-binary].
-
-On Linux, you can likely install D with your distro's package manager, but it
-might not be in the official repositories. For example, on Ubuntu, you will have
-to add the d-apt repository and install `dmd`.
-
-```sh
-$ sudo wget http://master.dl.sourceforge.net/project/d-apt/files/d-apt.list -O /etc/apt/sources.list.d/d-apt.list
-$ sudo apt-get update && sudo apt-get -y --allow-unauthenticated install --reinstall d-apt-keyring && sudo apt-get update
-$ sudo apt-get install dmd
-```
-
-If you're using `project`, you'll have to build D from source. I've written a
-[shell script][d-install] to do this, as the process is pretty involved.
-
-### Rust
-
-Rust is a very volatile language, with breaking changes being brought into the
-master branch almost every day. Most developers who use Rust use the nightly
-releases which means that they must constantly update their code to deal with
-the most recent breaking changes. Since I do not want to introduce any
-additional overhead to the project, we will be sticking to the __1.0.0-alpha.2__
-release of Rust. Please ensure that you use this version in order to keep source
-compatibility during your time working on the project.
-
-You may install Rust using one of the 1.0.0-alpha.2 (__not nightly__) binary
-installers [located here][rust-installers].
-
-If you have problems with the binary installers, you may install Rust from
-source in the following way. If you are attempting to build Rust on `project`,
-you may skip step 1, as the dependencies are already installed.
-
-1. Install dependencies
-
-    Use homebrew or your distro's package manager to install
-      * `g++` 4.7 or `clang++` 3.7
-      * `python` 2.6 or later (not 3.x)
-      * GNU `make` 3.81 or later
-      * `curl`
-      * `git`
-
-2. Download and build Rust:
-
-    ```sh
-    $ git clone https://github.com/rust-lang/rust.git && cd rust
-    $ git checkout 1.0.0-alpha.2
-    $ ./configure --prefix=$PWD
-    $ make -j5 && make install
-    ```
-
-    This will take a while, on my laptop it took just over an hour to compile.
-
-3. Add Rust to your path.
-
-    ```sh
-    echo "export PATH=\$PATH:$PWD/bin" >> ~/.bashrc
-    source ~/.bashrc
-    ```
-
-    Test that rust installed correctly.
-
-    ```sh
-    $ rustc --version
-    rustc 1.0.0-dev
-    ```
+You may find language-specific installation guides in the [Rust
+resources][rust-resources] and [D resources][d-resources] documents.
 
 ## Programming
 
@@ -394,8 +289,10 @@ my phone at (314) 440-8830.
 
 [rust]: https://github.com/rust-lang/rust
 [rust-installers]: http://www.rust-lang.org/install.html
+[rust-resources]: ./rust_resources.md
 [d-binary]: http://ftp.digitalmars.com/dinstaller.exe
 [d-install]: ./install-d.sh
+[d-resources]: ./d_resources.md
 [singly-linked-list]: http://en.wikipedia.org/wiki/Linked_list#Singly_linked_list
 [brainfsck]: http://esolangs.org/wiki/Brainfuck
 [sentence-splitter]: http://www.ling.gu.se/~lager/python_exercises.html
