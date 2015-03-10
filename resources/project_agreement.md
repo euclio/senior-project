@@ -133,7 +133,9 @@ Sentence boundaries occur at one of "." (periods), "?" or "!", except that
   periods) are probably not sentence boundaries.
 
 Write a function `splitSentences(string input)` that, given a string, prints
-each sentence on a separate line.
+each sentence on a separate line. I am only concerned with the function, so you
+may pass your test input to the function in any way, whether it be hard-coded,
+or through stdin, etc.
 
 <small>_Note:_ For simplicity, we will assume that we only have one space between
 each sentence.</small>
