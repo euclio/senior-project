@@ -2,7 +2,7 @@
 
 ## Installation
 
-Rust is a very volatile language, with breaking changes being brought into the
+[Rust][rust] is a very volatile language, with breaking changes being brought into the
 master branch almost every day. Most developers who use Rust use the nightly
 releases which means that they must constantly update their code to deal with
 the most recent breaking changes. Since I do not want to introduce any
@@ -72,3 +72,6 @@ though you will likely find other sections helpful:
 * [Generics](http://doc.rust-lang.org/1.0.0-alpha.2/book/generics.html)
 * [Concurrency](http://doc.rust-lang.org/1.0.0-alpha.2/book/concurrency.html)
 * [File I/O](http://rustbyexample.com/file.html)
+
+[rust]: https://github.com/rust-lang/rust
+[rust-installers]: http://www.rust-lang.org/install.html

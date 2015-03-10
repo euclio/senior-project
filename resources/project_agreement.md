@@ -287,11 +287,7 @@ Thank you again for volunteering! If you would like to contact me, I may be
 reached on Facebook, through email at acr02011@mymail.pomona.edu, or through
 my phone at (314) 440-8830.
 
-[rust]: https://github.com/rust-lang/rust
-[rust-installers]: http://www.rust-lang.org/install.html
 [rust-resources]: ./rust_resources.md
-[d-binary]: http://ftp.digitalmars.com/dinstaller.exe
-[d-install]: ./install_d.sh
 [d-resources]: ./d_resources.md
 [singly-linked-list]: http://en.wikipedia.org/wiki/Linked_list#Singly_linked_list
 [brainfsck]: http://esolangs.org/wiki/Brainfuck

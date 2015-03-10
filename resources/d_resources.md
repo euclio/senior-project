@@ -2,7 +2,7 @@
 
 ## Installation
 
-D has a number of compiler implementations, but we will be using `dmd`, the
+[D][d] has a number of compiler implementations, but we will be using `dmd`, the
 reference compiler.
 
 On Windows or Macs, you may install D by using the [binary installer][d-binary].
@@ -36,3 +36,6 @@ you will likely find other sections helpful:
 * [Parallelism](http://ddili.org/ders/d.en/parallelism.html)
 * [Files](http://ddili.org/ders/d.en/files.html)
 
+[d]: http://dlang.org
+[d-binary]: http://ftp.digitalmars.com/dinstaller.exe
+[d-install]: ./install_d.sh
