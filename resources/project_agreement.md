@@ -281,6 +281,11 @@ interpreter may need to perform multiple passes on the input to handle brackets.
 * File I/O
 * Pointer manipulation
 
+## Completion
+
+Upon completion of each program, you may email your code and error log to me or
+upload it to a source-hosting website such as GitHub or BitBucket.
+
 ## Conclusion
 
 Thank you again for volunteering! If you would like to contact me, I may be
