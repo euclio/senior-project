@@ -15,7 +15,7 @@ fn test_add_empty() {
     let mut list = IntegerLinkedList::new();
     list.insert(1, 0);
     assert_eq!(list.size(), 1);
-    assert_eq!(list.head(), Some(1));
+    assert_eq!(list.head(), Some(0));
 }
 
 // Single element tests
