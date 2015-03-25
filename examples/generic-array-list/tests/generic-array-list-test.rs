@@ -1,6 +1,6 @@
 mod array_list;
 
-use array_list::IntegerLinkedList;
+use array_list::ArrayList;
 
 // Empty list tests
 #[test]
