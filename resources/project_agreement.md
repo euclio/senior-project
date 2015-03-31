@@ -264,6 +264,8 @@ algorithm should use [std.parallelism] (D) or [std::thread] (Rust). You should
 also implement a sequential threshold of 10, meaning that if the number of
 elements in a subarray is less than 10, you should not fork a new thread.
 
+Your function should take in an array.
+
 #### Skills covered
 
 * Recursion
