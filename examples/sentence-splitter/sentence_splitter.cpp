@@ -40,7 +40,8 @@ void splitSentences(std::string input) {
 
         // Periods internal to a sentence of letters with no adjacent
         // whitespace are not sentence boundaries (e.g., websites).
-        if (std::isalpha(input.at(pos - 1)) &&
+        if (pos + 1 < input.length() &&
+                std::isalpha(input.at(pos - 1)) &&
                 std::isalpha(input.at(pos + 1))) {
             continue;
         }
