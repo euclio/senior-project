@@ -60,12 +60,50 @@ Rust and D have made, it is important to decide a context from which we can
 compare them. Since both languages aim to occupy the same space as C++, I have
 decided to compare the languages using C++ as a reference point.
 
-\section{C++}
+\section{History}
 
-C++ is a language developed in the early '80s by Bjarne Stroustrup. C++ remains
-one of the most popular languages in the world. The features particularly
-relevant to this paper are the C++ macro preprocessor and its memory management
-facilities.
+Though C++, D, and Rust are all related, each language developed within quite
+different historical contexts.
+
+C++ was developed in the early '80s by Bjarne Stroustrup. Stroustrup wished to
+bring high-level features such as classes, strong typing, and default arguments
+to C. It attempts to provide the programmer with a one-to-one mapping of
+built-in types to the hardware, while also offering flexible abstractions to
+allow user-defined types to take advantage of the same facilities available to
+the built-ins. Stroustrup himself outlined the design philosophy of C++ in two
+points:
+
+\begin{itemize}
+\item \textit{Leave no room for a lower-level language below C++}
+\item \textit{What you don't use you don't pay for}. This is also known as the
+``zero-overhead principle''.
+\end{itemize}
+
+These principles serve to keep C++ close to its roots in C while maintaining
+the abstractions that make it a high-level language~\cite{stroustrup2013the}.
+C++ remains one of the most popular languages in the world.
+
+D was created in 2001 by Walter Bright, and later developed by Digital Mars.
+From the name, it is easy to see that D has drawn much inspiration from C++, as
+C++ did from C. However, D has made a number of backwards-incompatible changes
+from C++ in the process of achieving its design goals. The D website cites a
+number of reasons why D is necessary. Most relevant to this paper are its
+assertions about the inherent complexity in C++ due to the sheer number of
+features present in the language, the burden of explicit memory management,
+memory, the difficulty in tracking down pointer bugs, and the hindrance of
+backwards compatibility with C~\cite{Doverview}. D, while less popular than
+C++, maintains a healthy online presence and is often advocated by C++ gurus
+such as Andrei Alexandrescu.
+
+Rust is a quite new programming language developed primarily by Mozilla
+starting in 2012. Rust aims to give programmers enough power to access the
+computer's hardware while providing ``strong guarantees about isolation,
+concurrency, and memory safety''~\cite{Matsakis:2014:RL:2663171.2663188}.
+Syntactically, Rust is a more radical departure from C++ than D. However, it
+has similar design goals. Despite not having a stable release, Rust generates
+a considerable amount of discussion and written code.
+
+\section{Macros, Preprocessing, and Conditional Compilation}
 
 The C++ macro preprocessor is an integral part of the language. Perhaps the
 most common use of the feature is to \texttt{include} one file (the ``header'')
@@ -79,6 +117,26 @@ for conditional compilation, where different code should be compiled depending
 on various conditions such as the underlying architecture or character-encoding
 support. Stroustrup advises that the C++ preprocessor should only be used for
 these cases~\cite{stroustrup2013the}.
+
+D also has an answer for the C++ preprocessor. The language contains a number
+of features that obviate its need. For example, inclusion is handled by
+modules, which handle imports of symbols from other files. This also removes
+the need for include guards, because each symbol is only guaranteed to be
+imported once. Conditional compilation is achieved through the
+\texttt{version} keyword. D also contains an aggressive inliner, which removes
+the need to implement small functions as macros~\cite{pretod}.
+
+In lieu of the preprocessor, Rust has an extremely powerful macro system.
+Rust macros operate on the abstract syntax tree of the program, rather than on
+the text. This allows macros to be type-safe and extend the language itself.
+In Rust, \texttt{println} is a macro that performs type-checking on its
+arguments to ensure that the format string contains the proper number of
+format placeholders for the arguments. In other languages, it might be
+possible to check this with a special code path in the compiler, but in Rust
+the language itself does the checking.
+
+
+\section{Memory Management}
 
 C++'s memory management is similar in some respects to its ancestor, C. Instead
 of requesting and returning blocks of memory from the free store by use of
@@ -108,17 +166,6 @@ Initialization'', or RAII~\cite{stroustrup2013the}. These containers help
 abstract memory management away from the programmer by ensuring \texttt{delete}
 is called when the pointer goes out of scope.
 
-\section{D}
-
-D was created in 2001 by Walter Bright. From the name, it is easy to see that D
-has drawn much inspiration from C++, as C++ did from C. However, D has made a
-number of backwards-incompatible changes from C++ in the process of achieving
-its design goals. The D website cites a number of reasons why D is necessary.
-Most relevant to this paper are its assertions about the inherent complexity in
-C++ due to the sheer number of features present in the language, the effort
-needed to explicitly manage memory, the difficulty in tracking down pointer
-bugs, and the hindrance of backwards compatibility with C~\cite{Doverview}.
-
 D handles memory management through its garbage collector. Classes are
 automatically allocated on the heap, and all other data is created on the
 stack. The garbage collector frees any memory that has gone out of scope
@@ -126,23 +173,6 @@ stack. The garbage collector frees any memory that has gone out of scope
 programmer to explicitly allocate and deallocate memory. If the programmer
 wishes to obtain RAII behavior, D provides syntax to execute code after
 variables go out of scope through destructors and scope guards~\cite{cppford}.
-
-D also has an answer for the C++ preprocessor. The language contains a number
-of features that obviate its need. For example, inclusion is handled by
-modules, which handle imports of symbols from other files. This also removes
-the need for include guards, because each symbol is only guaranteed to be
-imported once. Conditional compilation is achieved through the
-\texttt{version} keyword. D also contains an aggressive inliner, which removes
-the need to implement small functions as macros~\cite{pretod}.
-
-\section{Rust}
-
-Rust is a quite new programming language developed primarily by Mozilla
-starting in 2012. Rust aims to give programmers enough power to access the
-computer's hardware while providing ``strong guarantees about isolation,
-concurrency, and memory safety''~\cite{Matsakis:2014:RL:2663171.2663188}.
-Syntactically, Rust is a more radical departure from C++ than D. However, it
-has similar design goals.
 
 One of the interesting features of Rust is its guarantees about heap access.
 In Rust, if you were to allocate an int on the heap, you might write
@@ -158,15 +188,6 @@ guarantees that ``no other writable pointers alias to this heap memory'',
 meaning that it is impossible for multiple objects to write to this memory
 (unless the programmer were to use an Rc pointer, which allows multiple
 readers)~\cite{RustPointerGuide}.
-
-In lieu of the preprocessor, Rust has an extremely powerful macro system.
-Rust macros operate on the abstract syntax tree of the program, rather than on
-the text. This allows macros to be type-safe and extend the language itself.
-In Rust, \texttt{println} is a macro that performs type-checking on its
-arguments to ensure that the format string contains the proper number of
-format placeholders for the arguments. In other languages, it might be
-possible to check this with a special code path in the compiler, but in Rust
-the language itself does the checking.
 
 \chapter{Evaluation Strategy}
 
