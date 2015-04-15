@@ -3,6 +3,7 @@
 \usepackage[toc,page]{appendix}
 \usepackage{hyperref}
 \usepackage{listings}
+\usepackage{pdfpages}
 \usepackage{url}
 
 \title{Rust vs. D:\ Exploring the Possible Successors of C++}
@@ -379,5 +380,12 @@ the error was caught at compile-time or run-time.
 
 \nocite{*}
 \bibliography{senior-project}
+
+\begin{appendices}
+\chapter{Volunteer Resources}
+\includepdf[pages={-}]{../resources/project_agreement.pdf}
+\includepdf[pages={-}]{../resources/d_resources.pdf}
+\includepdf[pages={-}]{../resources/rust_resources.pdf}
+\end{appendices}
 
 \end{document}
