@@ -2,9 +2,12 @@
 
 \usepackage[toc,page]{appendix}
 \usepackage{hyperref}
-\usepackage{listings}
+\usepackage[outputdir=latexmk]{minted}
 \usepackage{pdfpages}
 \usepackage{url}
+
+\definecolor{bg}{rgb}{0.95,0.95,0.95}
+\setminted{bgcolor=bg}
 
 \title{Rust vs. D:\ Exploring the Possible Successors of C++}
 \author{Andy Russell}
@@ -29,6 +32,8 @@ determine whether the language's design goals have been met.}
 
 \begin{document}
 \frontmatter
+
+\listoflistings{}
 
 \chapter{Introduction}
 
@@ -176,19 +181,24 @@ wishes to obtain RAII behavior, D provides syntax to execute code after
 variables go out of scope through destructors and scope guards~\cite{cppford}.
 
 One of the interesting features of Rust is its guarantees about heap access.
-In Rust, if you were to allocate an int on the heap, you might write
+Listing~\ref{lst:rustheapalloc} shows how one might allocate an int on the
+heap in Rust.
 
-\begin{lstlisting}[language=Rust]
-    let x = box 5i;
-\end{lstlisting}
+\begin{listing}[H]
+\begin{minted}{rust}
+let x = Box::new(5i);
+\end{minted}
+\caption{Rust heap allocation.}
+\label{lst:rustheapalloc}
+\end{listing}
 
 This code acts similarly to a \texttt{unique\_ptr} would in C++. It guarantees
 that you cannot forget to free the memory, and that the memory is not used
 after the free. Rust's semantics are more powerful than this, however. Rust
 guarantees that ``no other writable pointers alias to this heap memory'',
 meaning that it is impossible for multiple objects to write to this memory
-(unless the programmer were to use an Rc pointer, which allows multiple
-readers)~\cite{RustPointerGuide}.
+(unless the programmer were to use an \texttt{Rc} pointer, which allows
+multiple readers)~\cite{RustPointerGuide}.
 
 \chapter{Evaluation Strategy}
 
