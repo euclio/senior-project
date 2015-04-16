@@ -55,16 +55,20 @@ Java and C\#, inspired by this goal, have removed that need. However, due to
 their dependence on a virtual machine, they have sacrificed performance and the
 ability to interface directly with
 hardware~\cite{Alexandrescu:2010:DPL:1875434}. The languages examined in this
-paper, D and Rust, do not use a virtual machine or run-time. The languages aim
-to match the low-level speed and power of C++ while attempting to make code
-easier to write both from an expressiveness and correctness standpoint.
+paper, D and Rust, do not use a virtual machine, instead opting for native
+compilation. The languages aim to match the low-level speed and power of C++
+while attempting to make code easier to write both from an expressiveness and
+correctness standpoint.
 
 \chapter{Background}
 
 In order to adequately discuss the design decisions that the implementors of
 Rust and D have made, it is important to decide a context from which we can
 compare them. Since both languages aim to occupy the same space as C++, I have
-decided to compare the languages using C++ as a reference point.
+decided to compare the languages using C++ as a reference point. In addition
+to considering the historical context that each language developed in, I have
+decided to focus on a few important features that are essential to systems
+programming.
 
 \section{History}
 
@@ -109,7 +113,7 @@ Syntactically, Rust is a more radical departure from C++ than D. However, it
 has similar design goals. Despite not having a stable release, Rust generates
 a considerable amount of discussion and written code.
 
-\section{Macros, Preprocessing, and Conditional Compilation}
+\section{Preprocessing, Macros, and Conditional Compilation}
 
 The C++ macro preprocessor is an integral part of the language. Perhaps the
 most common use of the feature is to \texttt{include} one file (the ``header'')
@@ -141,18 +145,61 @@ format placeholders for the arguments. In other languages, it might be
 possible to check this with a special code path in the compiler, but in Rust
 the language itself does the checking.
 
-
 \section{Memory Management}
 
-C++'s memory management is similar in some respects to its ancestor, C. Instead
-of requesting and returning blocks of memory from the free store by use of
-\texttt{malloc()} and \texttt{free()}, a C++ programmer uses \texttt{new} and
-\texttt{delete}\footnote{C++ has separate operators for array allocation:
-    \texttt{new[]} and \texttt{delete[]}.}. The language inherits the
-requirement that the programmer must remember to \texttt{delete} all memory
-acquired by \texttt{new} to avoid memory leaks, and that the programmer should
-refrain from using deallocated or unallocated memory to prevent invoking
-undefined behavior~\cite{stroustrup2013the}. Undefined behavior is
+Memory management is a key component of systems languages. Many
+performance-critical applications depend on the power of being able to manage
+memory manually. However, this opens up an entire class of bugs. Some of these
+bugs include memory leaks (forgetting to free allocated memory) and
+use-after-free (using a pointer to memory that has already been reclaimed by
+the memory manager). These bugs are often difficult to track down.
+
+C++'s memory management works similarly to its ancestor, C. In fact, due to to
+its commitment to backwards compatibility, C++ even inherits the
+\texttt{malloc()} and \texttt{free()} functions, as seen in
+Listing~\ref{lst:cmemory}. These functions allow the programmer to request and
+return blocks of memory to the free store, or heap. However, C++ programmers
+should never use these functions, instead opting for the \texttt{new} and
+\texttt{delete} operators. C++ has additional operators for array allocation:
+\texttt{new[]} and \texttt{delete[]}. Listing~\ref{lst:cppmemory} uses the
+operators to allocate an array. These keywords are slightly safer because the
+programmer no longer has to keep track of the exact size of the allocation, the
+programmer must still remember to to \texttt{delete} all memory acquired by
+\texttt{new} to avoid memory leaks, and refrain from using deallocated or
+unallocated memory to prevent invoking undefined
+behavior~\cite{stroustrup2013the}. In addition, the correct form of the keyword
+must be used, as using the non-array \texttt{delete} may leave the heap in an
+inconsistent state.
+
+\begin{listing}[H]
+\begin{minted}{c}
+/* Allocates 10 elements on the heap. */
+int* elements = malloc(sizeof(int) * 10);
+
+/* ... */
+
+/* Release the memory for reuse. */
+free(elements);
+\end{minted}
+\caption{C Memory management.}
+\label{lst:cmemory}
+\end{listing}
+
+\begin{listing}[H]
+\begin{minted}{c++}
+// Allocates 10 elements on the heap.
+int[] elements = new int[10];
+
+// ...
+
+// Release the memory for reuse.
+delete[] elements;      // Don't forget the `[]'!
+\end{minted}
+\caption{Primitive C++ memory management.}
+\label{lst:cppmemory}
+\end{listing}
+
+Undefined behavior is
 characterized by the \textit{lack} of a definition of what an implementation of
 C++ should do in a given situation~\cite{iso/iec}. In other words, if a program
 incurs undefined behavior, then an implementation is in no way required to act
@@ -160,6 +207,23 @@ in any particular way. The program may not compile, may crash at run-time, or
 act in any number of ways. Clearly it is impossible to reason about the
 correctness of a program that causes undefined behavior, so C++ programmers
 must avoid it at all costs.
+
+\begin{listing}
+\begin{minted}{c++}
+#include <array>
+#include <memory>
+
+// Allocates 10 elements on the heap.
+std::unique_ptr<int[]> elementsPtr(new int[10]);
+std::array<int, 10> elementsArray;      // Avoids explicitly using `new'
+
+// ...
+
+// Memory is released when the unique_ptr and array go out of scope.
+\end{minted}
+\label{lst:cppmodernmemory}
+\caption{Modern C++ memory management.}
+\end{listing}
 
 C++ programmers are well-aware of the problems that arise from using
 \texttt{new} and \texttt{delete} improperly. In fact, Stroustrup warns that
@@ -172,33 +236,95 @@ Initialization'', or RAII~\cite{stroustrup2013the}. These containers help
 abstract memory management away from the programmer by ensuring \texttt{delete}
 is called when the pointer goes out of scope.
 
-D handles memory management through its garbage collector. Classes are
-automatically allocated on the heap, and all other data is created on the
-stack. The garbage collector frees any memory that has gone out of scope
-(though not necessarily immediately after). This removes the need for the
-programmer to explicitly allocate and deallocate memory. If the programmer
-wishes to obtain RAII behavior, D provides syntax to execute code after
-variables go out of scope through destructors and scope guards~\cite{cppford}.
-
-One of the interesting features of Rust is its guarantees about heap access.
-Listing~\ref{lst:rustheapalloc} shows how one might allocate an int on the
-heap in Rust.
+D's creators acknowledged the problems with manual memory management and opted
+to remove the need for it entirely. D handles memory management through a
+garbage collector. D classes are automatically allocated on the heap, and all
+other data is created on the stack. The garbage collector frees any memory that
+has gone out of scope (though not necessarily immediately after). This removes
+the need for the programmer to explicitly allocate and deallocate memory. Like
+C++, destructors are executed when variables go out of scope, allowing RAII
+behavior. In addition, D provides the ``Scope Guard'' statement, which offers
+more fine-grained control over when scope-dependent blocks of code should
+execute, seen in Listing~\ref{lst:dscope}. For example, if an exception is
+thrown, the code would print \texttt{success} and then \texttt{exited} on their
+own lines. If an exception was thrown, the code would print \texttt{failure},
+then \texttt{exited}.
 
 \begin{listing}[H]
-\begin{minted}{rust}
-let x = Box::new(5i);
+\begin{minted}{d}
+import std.stdio;
+
+try {
+    scope(exit) writeln("exited");
+    scope(failure) writeln("failure");
+    scope(success) writeln("success");
+    // Code that may throw an exception...
+} catch (Exception e) {}
 \end{minted}
-\caption{Rust heap allocation.}
-\label{lst:rustheapalloc}
+\caption{D scope guards.}
+\label{lst:dscope}
 \end{listing}
 
-This code acts similarly to a \texttt{unique\_ptr} would in C++. It guarantees
-that you cannot forget to free the memory, and that the memory is not used
-after the free. Rust's semantics are more powerful than this, however. Rust
-guarantees that ``no other writable pointers alias to this heap memory'',
-meaning that it is impossible for multiple objects to write to this memory
-(unless the programmer were to use an \texttt{Rc} pointer, which allows
-multiple readers)~\cite{RustPointerGuide}.
+D programmers may also opt-out of the garbage collector by marking functions
+with the \texttt{@nogc} attribute. Within \texttt{@nogc} functions, the garbage
+collector will not run. This feature is intended for situations where the
+overhead introduced by the D runtime (which contains the garbage collector) is
+unacceptable, such as when implementing a kernel or in performance-critical
+applications. However, this introduces a number of problems, as allocating
+classes and other types that rely on GC allocation will be no longer possible.
+In addition, some parts of the standard library perform heap allocations,
+though the goal is to eventually mark all of D's standard library as
+\texttt{@nogc}.
+
+Rust, on the other hand, attempts to find a middle ground between the
+performance of C++ and the overhead of D. One of the interesting features of
+Rust is its guarantees about heap access. It accomplishes this by strictly
+enforcing the concept of ownership. Ownership can be seen in C++ by looking at
+the names of its pointer types\footnote{That is, \texttt{unique\_ptr},
+\texttt{shared\_ptr}, or \texttt{weak\_ptr}}. For example, a
+\texttt{unique\_ptr} only allows itself \texttt{unique\_ptr} to point at its
+memory. It enforces this by disallowing copying and requiring that reassignment
+be done through a move, which transfers ownership of a piece of memory from one
+object or scope to another. However, ownership transfer may introduce bugs, as
+shown in Listing~\ref{lst:cppuseaftermove}.
+
+Rust avoids this class of bug entirely by guaranteeing at compile time that
+moved memory cannot be used. Attempting to compile
+Listing~\ref{lst:rustuseaftermove} would result in \texttt{error: use of moved
+value: `x`}. Even more powerful than this is that Rust guarantees that ``no
+other writable pointers alias to this heap memory'', meaning that it is
+impossible for multiple objects to write to the same memory location (unless
+the programmer were to use an \texttt{Rc} pointer, which allows multiple
+readers and writers through reference counting)~\cite{RustPointerGuide}.
+
+\begin{listing}[h]
+\begin{minted}{cpp}
+#include <memory>
+#include <iostream>
+
+// Allocate an int on the heap
+std::unique_ptr<int> movedPtr(new int(10));
+
+// Change the int's owner to a new pointer.
+std::unique_ptr<int> ptr = std::move(ptr);
+
+// Attempt to dereference the pointers.
+std::cout << *ptr << std::endl;
+std::cout << *movedPtr << std::endl;    // Segfault!
+\end{minted}
+\caption{C++ use of moved value (bug).}
+\label{lst:cppuseaftermove}
+\end{listing}
+
+\begin{listing}[h]
+\begin{minted}{rust}
+let x = Box::new(5i);       // Allocate an int on the heap.
+let y = x;                  // Change the int's owner to y.
+println!("{}", x);          // error: use of moved value: 'x'
+\end{minted}
+\caption{Rust use of moved value (compilation error).}
+\label{lst:rustuseaftermove}
+\end{listing}
 
 \chapter{Evaluation Strategy}
 
@@ -312,11 +438,11 @@ demonstrate various features that are important to systems languages.
 
 I advertised my study both on the Computer Science Facebook group and through
 Computer Science colloquium. Once volunteers indicated their interest, I sent
-them a document\footnote{The document may be found online at
-\url{https://github.com/euclio/senior-project/blob/master/resources/project_agreement.md}}
-detailing my expectations for the project. The volunteers then sent me
-information including their name, major, experience with programming, and a
-confirmation that they read the document in its entirety.
+them a document\footnote{The document itself may be found in
+Appendix~\ref{app:resources}.}. detailing my expectations for the project. The
+volunteers then sent me information including their name, major, experience
+with programming, and a confirmation that they read the document in its
+entirety.
 
 Each volunteer was then assigned either Rust or D as a language. I tried to
 satisfy the volunteer's preference for learning the language, though I first
@@ -365,7 +491,7 @@ algorithm is relatively simple to understand, and easily parallelizable.
 
 This program introduced the programmers to recursion and concurrency.
 
-\item Brainfuck [sic] Interpreter
+\item Brainfuck Interpreter
 
 Lastly, the programmers were asked to implement a Brainfuck interpreter.
 Brainfuck is an esoteric programming language, known for being fiendishly
@@ -392,7 +518,7 @@ the error was caught at compile-time or run-time.
 \bibliography{senior-project}
 
 \begin{appendices}
-\chapter{Volunteer Resources}
+\chapter{Volunteer Resources}\label{app:resources}
 \includepdf[pages={-}]{../resources/project_agreement.pdf}
 \includepdf[pages={-}]{../resources/d_resources.pdf}
 \includepdf[pages={-}]{../resources/rust_resources.pdf}
