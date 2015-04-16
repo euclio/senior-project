@@ -1,4 +1,4 @@
-\documentclass[draftcopy]{srpaper}
+\documentclass[draftcopy,nolof,nolot]{srpaper}
 
 \usepackage[toc,page]{appendix}
 \usepackage{hyperref}
@@ -517,11 +517,10 @@ the error was caught at compile-time or run-time.
 \nocite{*}
 \bibliography{senior-project}
 
-\begin{appendices}
+\appendix
 \chapter{Volunteer Resources}\label{app:resources}
 \includepdf[pages={-}]{../resources/project_agreement.pdf}
 \includepdf[pages={-}]{../resources/d_resources.pdf}
 \includepdf[pages={-}]{../resources/rust_resources.pdf}
-\end{appendices}
 
 \end{document}
