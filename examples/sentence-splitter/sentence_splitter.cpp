@@ -48,13 +48,13 @@ void splitSentences(std::string input) {
 
         // Periods followed by certain kinds of punctuation (notably comma and
         // more periods) are probably not sentence boundaries.
-        if (input.at(pos + 1) == ',') {
+        if (pos + 1 < input.length() && input.at(pos + 1) == ',') {
             continue;
         }
 
-        for (; pos + 1 < input.length() && input.at(pos + 1) == '.'; ++pos) {
-            // Do nothing, we are just trying to consume any periods that are
-            // next to each other.
+        // Consume any periods that are next to each other.
+        while (pos + 1 < input.length() && input.at(pos + 1) == '.') {
+            pos++;
         }
 
         // We passed all the special conditions, so we probably have a
