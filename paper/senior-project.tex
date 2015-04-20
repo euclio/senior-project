@@ -1,7 +1,9 @@
 \documentclass[draftcopy,nolof,nolot]{srpaper}
 
 \usepackage[toc,page]{appendix}
+\usepackage{etoolbox}
 \usepackage{hyperref}
+\usepackage{mdframed}
 \usepackage[outputdir=latexmk]{minted}
 \usepackage{pdfpages}
 \usepackage{url}
@@ -519,8 +521,56 @@ the error was caught at compile-time or run-time.
 
 \appendix
 \chapter{Volunteer Resources}\label{app:resources}
+The following documents were sent to the volunteers of my project. The
+documents contain explanations of the project expectations, brief descriptions
+of the programs to be implemented, and installation instructions for the
+languages themselves.
+
+The documents were written using Markdown. These versions included in this
+appendix are PDF renderings of the documents as they appear online at
+\url{https://github.com/euclio/senior-project/tree/master/resources}.
+
 \includepdf[pages={-}]{../resources/project_agreement.pdf}
 \includepdf[pages={-}]{../resources/d_resources.pdf}
 \includepdf[pages={-}]{../resources/rust_resources.pdf}
+
+\chapter{Solutions}\label{app:solutions}
+This appendix includes my solutions to the problems that were given to my
+volunteers. The code in each example strives to be as idiomatic as possible in
+each language.
+
+\setminted{bgcolor=}
+
+\section{Hello, World}
+\subsection{C++}
+\begin{mdframed}[linecolor=black]
+\inputminted{cpp}{../examples/hello-world/hello_world.cpp}
+\end{mdframed}
+
+\subsection{D}
+\begin{mdframed}[linecolor=black]
+\inputminted{d}{../examples/hello-world/hello_world.d}
+\end{mdframed}
+
+\subsection{Rust}
+\begin{mdframed}[linecolor=black]
+\inputminted{rust}{../examples/hello-world/hello_world.rs}
+\end{mdframed}
+
+\section{Sentence Splitter}
+\subsection{C++}
+\begin{mdframed}[linecolor=black]
+\inputminted[fontsize=\scriptsize]{cpp}{../examples/sentence-splitter/sentence_splitter.cpp}
+\end{mdframed}
+
+\subsection{D}
+\begin{mdframed}[linecolor=black]
+\inputminted[fontsize=\scriptsize]{d}{../examples/sentence-splitter/sentence_splitter.d}
+\end{mdframed}
+
+\subsection{Rust}
+\begin{mdframed}[linecolor=black]
+\inputminted[fontsize=\scriptsize]{rust}{../examples/sentence-splitter/sentence_splitter.rs}
+\end{mdframed}
 
 \end{document}
