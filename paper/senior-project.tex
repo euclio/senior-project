@@ -1,12 +1,15 @@
-\documentclass[draftcopy,nolof,nolot]{srpaper}
+\documentclass[draftcopy]{srpaper}
 
 \usepackage[toc,page]{appendix}
+\usepackage{booktabs}
 \usepackage{etoolbox}
 \usepackage{hyperref}
+\usepackage{listings}
 \usepackage{mdframed}
 \usepackage[outputdir=latexmk]{minted}
 \usepackage{pdfpages}
 \usepackage{url}
+\usepackage{verbatimbox}
 
 \definecolor{bg}{rgb}{0.95,0.95,0.95}
 \setminted{bgcolor=bg}
@@ -35,6 +38,7 @@ determine whether the language's design goals have been met.}
 \begin{document}
 \frontmatter
 
+\addcontentsline{toc}{section}{List of Listings}
 \listoflistings{}
 
 \chapter{Introduction}
@@ -183,7 +187,7 @@ int* elements = malloc(sizeof(int) * 10);
 /* Release the memory for reuse. */
 free(elements);
 \end{minted}
-\caption{C Memory management.}
+\caption{C memory management.}
 \label{lst:cmemory}
 \end{listing}
 
@@ -513,6 +517,61 @@ categorize it as a syntax error, logic error, or resource error, and whether
 the error was caught at compile-time or run-time.
 
 \chapter{Results}
+
+Given Rust's focus on compile-time error catching and D's focus on ease of
+use, I hypothesized that my volunteers would encounter a much greater number
+of compile time issues with Rust, and that D programmers would find that their
+programs ran into more runtime issues. Also, D's syntax would be more familiar
+to my volunteers. I found that my hypothesis was true.
+
+\section{Experimental Results}
+
+I was able to recruit seven volunteers that generously donated their time and
+effort to my project. Each volunteer was very experienced in programming: six
+were computer science majors, and one was a computer science minor.
+Figure~\ref{fig:sampleerrorlog} contains a snippet of an error log submitted
+by one of my volunteers.
+
+\begin{figure}[h]
+\begin{lstlisting}[breaklines]
+Syntax error - Wrong syntax of println - Compile time
+Syntax error - Wrote "splitSentences" instead of "split_sentences" - Compile time
+Syntax error - Used old variable name - Compile time
+Syntax error - Tried to iterate over len() instead of range(0, len()) - Compile time
+Syntax error - Used one argument instead of two with range() - Compile time
+Syntax error - Passed char instead of &char in the contains func - Compile time
+Syntax error - Used [char] instead of &[char] in initialization of array - Compile time
+\end{lstlisting}
+\caption{Sample error log}
+\label{fig:sampleerrorlog}
+\end{figure}
+
+All of my volunteers were able to complete the sentence splitter. It was very
+interesting to see the types of errors that were encountered during this phase
+of the experiment. As expected, Rust programmers found many more compile time
+issues. Surprisingly, D programmers ran into segmentation faults due to the
+behavior of attempting to access iterators out of bounds.
+
+\begin{table}[h]
+\centering
+\begin{tabular}{crrrl}
+\toprule
+Volunteer & Syntax & Logic & Resource & Notes \\
+\midrule
+A & 6 & 2 & 0 & \\
+B & 5 & 0 & 1 & Did not finish \\
+C & 8 & 2 & 0 & Test suite passes \\
+D & 2 & 1 & 0 & Program enters infinite loop on ellipsis \\
+E & 18 & 5 & 0 & Test suite passes \\
+F & 15 & 0 & 0 & Passes \\
+G & 4 & 2 & 0 & Passes \\
+\bottomrule
+\end{tabular}
+\caption{Sentence splitter error log summary}
+\label{tab:sentencesplitter}
+\end{table}
+
+\section{Evaluation}
 
 \chapter{Conclusion}
 
