@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.1.0 FATAL_ERROR)
 project(int-linked-list)
 
-add_executable(int-linked-list int-linked-list.cpp int-linked-list.hpp)
+add_executable(int-linked-list int_linked_list.cpp int_linked_list.hpp)
 
 add_definitions("-Wall -Werror")
 

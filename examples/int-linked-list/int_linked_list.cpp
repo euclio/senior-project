@@ -1,7 +1,7 @@
 #include <memory>
 #include <stdexcept>
 
-#include "int-linked-list.hpp"
+#include "int_linked_list.hpp"
 
 IntLinkedList::Node::Node(int element) : element(element), next(nullptr) {}
 
