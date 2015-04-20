@@ -21,19 +21,20 @@
 
 \abstract{The programming languages D and Rust aim to simplify the complex and
 error-prone features of C++ while maintaining a similar level of performance.
-This paper examines whether the languages succeed in their goal of easing the
-development of safe code, specifically focusing on each language's compile-time
-features and memory management techniques. C++, D, and Rust are evaluated on
-both subjective and empirical criteria. In order to evaluate the success of
-each language's design goals, I will implement a number of small programs that
-encompass common tasks in systems programming, each in C++, D, and Rust. I will
-then recruit volunteers with prior experience with C++ to attempt to implement
-each program in D or Rust. Each volunteer will document his or her development
-process in detail, particularly noting any errors or bugs that might be
-encountered. Each error programmers will be tallied and categorized to analyze
-whether a particular language makes it easier to avoid certain errors. I will
-then evaluate each language on expressiveness and ease of development to
-determine whether the language's design goals have been met.}
+This paper examines whether the languages succeed in easing the development of
+safe code, with a particular focus on each language's compile-time features and
+memory management techniques. C++, D, and Rust are evaluated on both subjective
+and empirical criteria. In order to evaluate the success of each language's
+design goals, I have implemented a number of small programs that demonstrate
+common tasks in systems programming, each in C++, D, and Rust. I recruited a
+number of volunteers with prior experience with C++ to attempt the
+implementation of these programs in D or Rust as well. Each volunteer
+documented his or her development process in detail, particularly noting any
+errors or bugs that were encountered. The programmers tallied and categorized
+each error. This data was used to analyze whether a particular language makes
+it easier to avoid certain errors. I then evaluated each language on
+expressiveness and ease of development to determine whether the language's
+design goals have been met.}
 
 \begin{document}
 \frontmatter
@@ -44,32 +45,38 @@ determine whether the language's design goals have been met.}
 \chapter{Introduction}
 
 Systems programming is an extremely important part of computing today. The raw
-speed and low-level access to hardware provided by languages of this nature are
-necessary for embedded systems, networking, and gaming, and any number of other
-applications. However, such power comes with inherent
-danger\footnote{Throughout this paper, when I refer to a concept or feature as
-``dangerous,'' I mean that it is error-prone or difficult to reason about,
-especially if the errors that may arise from its use are resistant to
-debugging.}.
+speed and low-level access to hardware provided by systems programming
+languages are necessary for embedded systems, networking, and gaming, plus any
+number of other applications. However, such command of a computer's hardware
+naturally invites danger\footnote{Throughout this paper, when I refer to a
+concept or feature as ``dangerous,'' I mean that it is error-prone or difficult
+to reason about, especially if the errors that may arise from its use are
+resistant to debugging.}.
 
 Mistakes in managing memory can lead to run-time crashes or security
 vulnerabilities such as buffer overflow or format string
 attacks~\cite{Shahriar:2012:MPS:2187671.2187673}. While there are many tools
 designed to allow programmers to catch such errors, the ideal solution would be
-to eliminate the burden of manual memory management. Other languages such as
-Java and C\#, inspired by this goal, have removed that need. However, due to
-their dependence on a virtual machine, they have sacrificed performance and the
-ability to interface directly with
+to eliminate the burden of manual memory management altogether. Other languages
+such as Java and C\#, inspired by this goal, have removed that need. However,
+due to their dependence on a virtual machine, they have sacrificed performance
+and the ability to interface directly with
 hardware~\cite{Alexandrescu:2010:DPL:1875434}. The languages examined in this
 paper, D and Rust, do not use a virtual machine, instead opting for native
 compilation. The languages aim to match the low-level speed and power of C++
 while attempting to make code easier to write both from an expressiveness and
 correctness standpoint.
 
+This paper aims to analyze the Rust and D programming languages from as
+objective a standpoint as possible. I primarily focus on the features that each
+language makes at compile time, with memory-safety and preprocessing feature
+taking a particular emphasis, due to the misuse of these features causing
+dangerous errors in C++.
+
 \chapter{Background}
 
 In order to adequately discuss the design decisions that the implementors of
-Rust and D have made, it is important to decide a context from which we can
+Rust and D have made, it is important to determine a context from which we can
 compare them. Since both languages aim to occupy the same space as C++, I have
 decided to compare the languages using C++ as a reference point. In addition
 to considering the historical context that each language developed in, I have
@@ -78,7 +85,7 @@ programming.
 
 \section{History}
 
-Though C++, D, and Rust are all related, each language developed within quite
+Though C++, D, and Rust are all related, the languages developed within
 different historical contexts.
 
 C++ was developed in the early '80s by Bjarne Stroustrup. Stroustrup wished to
@@ -99,25 +106,27 @@ These principles serve to keep C++ close to its roots in C while maintaining
 the abstractions that make it a high-level language~\cite{stroustrup2013the}.
 C++ remains one of the most popular languages in the world.
 
-D was created in 2001 by Walter Bright, and later developed by Digital Mars.
-From the name, it is easy to see that D has drawn much inspiration from C++, as
-C++ did from C. However, D has made a number of backwards-incompatible changes
-from C++ in the process of achieving its design goals. The D website cites a
-number of reasons why D is necessary. Most relevant to this paper are its
-assertions about the inherent complexity in C++ due to the sheer number of
-features present in the language, the burden of explicit memory management,
-memory, the difficulty in tracking down pointer bugs, and the hindrance of
-backwards compatibility with C~\cite{Doverview}. D, while less popular than
-C++, maintains a healthy online presence and is often advocated by C++ gurus
-such as Andrei Alexandrescu.
+D was created in 2001 by Walter Bright, and later developed by Digital
+Mars~\cite{Doverview}. As the name indicates, D has drawn much inspiration from
+C++, as C++ did from C. However, D has made a number of backwards-incompatible
+changes from C++ in the process of achieving its design goals. The D website
+cites a number of reasons why D is necessary. Most relevant to this paper are
+its assertions about the inherent complexity in C++ due to the sheer number of
+features present in the language, the burden of explicit memory management, the
+difficulty in tracking down pointer bugs, and the hindrance of backwards
+compatibility with C~\cite{Doverview}. D, while less popular than C++,
+maintains a healthy online presence and is often promoted by C++ gurus such as
+Andrei Alexandrescu.
 
 Rust is a quite new programming language developed primarily by Mozilla
 starting in 2012. Rust aims to give programmers enough power to access the
 computer's hardware while providing ``strong guarantees about isolation,
 concurrency, and memory safety''~\cite{Matsakis:2014:RL:2663171.2663188}.
 Syntactically, Rust is a more radical departure from C++ than D. However, it
-has similar design goals. Despite not having a stable release, Rust generates
-a considerable amount of discussion and written code.
+has similar design goals. Despite not having a stable release, Rust generates a
+considerable amount of discussion and written code, as evidenced by the over
+one million downloads served by \url{crates.io}, Rust's package hosting
+website~\cite{Cratesio}.
 
 \section{Preprocessing, Macros, and Conditional Compilation}
 
@@ -134,13 +143,15 @@ on various conditions such as the underlying architecture or character-encoding
 support. Stroustrup advises that the C++ preprocessor should only be used for
 these cases~\cite{stroustrup2013the}.
 
-D also has an answer for the C++ preprocessor. The language contains a number
-of features that obviate its need. For example, inclusion is handled by
-modules, which handle imports of symbols from other files. This also removes
-the need for include guards, because each symbol is only guaranteed to be
-imported once. Conditional compilation is achieved through the
-\texttt{version} keyword. D also contains an aggressive inliner, which removes
-the need to implement small functions as macros~\cite{pretod}.
+% TODO: Provide examples
+
+D provides safer alternatives to the C++ preprocessor, and, when possible,
+obviates its need entirely. For example, inclusion is handled by modules, which
+handle imports of symbols from other files. This also removes the need for
+include guards, because each symbol is only guaranteed to be imported once.
+Conditional compilation is achieved through the \texttt{version} keyword. D
+also contains an aggressive inliner, which removes the need to implement small
+functions as macros~\cite{pretod}.
 
 In lieu of the preprocessor, Rust has an extremely powerful macro system.
 Rust macros operate on the abstract syntax tree of the program, rather than on
@@ -342,11 +353,10 @@ evaluation of Rust and D as possible, I wish to include both qualitative and
 quantitative criteria.
 
 AlGhamdi and Urban provide an excellent list of qualitative methodologies on
-which I have based the my own
-methodology~\cite{AlGhamdi:1993:CAP:162754.162876}. Their paper summarizes
-twelve methodologies, and the factors that may be used to achieve an apt
-comparison. The following list summarizes the methodologies expounded in their
-paper that I will employ in my project.
+which I have based my own methodology~\cite{AlGhamdi:1993:CAP:162754.162876}.
+Their paper summarizes twelve methodologies, and the factors that may be used
+to achieve an apt comparison. The following list summarizes the methodologies
+expounded in their paper that I will employ in my project.
 
 \begin{enumerate}
 \item Comparison of Philosophy and History
@@ -354,20 +364,19 @@ paper that I will employ in my project.
 Since both Rust and D occupy a similar domain, the main factor that I will use
 to distinguish the two is the ``intention of [the] designers''. While these
 languages were created nearly a decade apart, differ in their corporate
-affiliations, and have varying development team size, I do not find these
-factors relevant for my study. When evaluating the languages on their own, I
-believe that the only factor that remains inherent in the language is its
-philosophy.
+affiliations, and have varying development team size, I find these factors less
+relevant for my study. I believe that the only factor that deeply affects
+programmers using the languages is the design philosophy behind them.
 
 \item The Degree of Permissiveness of the Language
 
 This methodology includes criteria such as the ability of the programmer to
 circumvent type-checking, operator overloading, and run-time checking. I am
 particularly interested in the memory safety of Rust and D compared to C++.
-While these languages will \textit{allow} a programmer to circumvent the type
-system or perform unsafe memory accesses, such practices are discouraged. So,
-I am interested in the effectiveness of each language in avoiding the
-requirement of such practices.
+While these languages will allow a programmer to circumvent the type system or
+perform unsafe memory accesses, such practices are discouraged. So, I am
+interested in the effectiveness of each language in avoiding the requirement of
+such unsafe techniques.
 
 \item Language Contributions to Program Readability
 
@@ -387,8 +396,8 @@ variables, null pointers, and memory leaks.
 This methodology is also quite important to my study. Rust and D are both
 strongly typed, and each language provides a number of ways to inform the
 compiler of programmer intent for the usage of various data types. Exploring
-the numerous primitive data types is integral to understanding the power of
-each language.
+the numerous primitive data types, and the ability to construct new types from
+those primitives is integral to understanding the power of each language.
 
 \item Control Facilities
 
@@ -400,7 +409,7 @@ includes parameter-passing methods, concurrency, and generics/templates.
 This methodology explores the various costs involved with writing in a language
 under consideration. This involves the cost of learning the language, the cost
 of writing a program in the language, and even the cost of compiling a program.
-The cost of executing and maintaining a program is irrelevant for this paper,
+The cost of executing and maintaining a program less relevant to this paper,
 but I imagine the maintainence cost is somewhat encompassed by the criteria for
 evaluating the languages' readability. While this methodology is particularly
 important for new programmers, and becomes less apparent with experience, it is
@@ -422,8 +431,8 @@ two.
 
 While I believe that the aforementioned methodologies comprise a satisfactory
 qualitative evaluation strategy for Rust and D, I do not believe that a full
-comparison can be achieved with these methodologies alone. Furthermore, much of
-the criteria is rather subjective. For my project, I have strived to develop a
+comparison can be achieved with these methodologies alone. Furthermore, many of
+the criteria are rather subjective. For my project, I have strived to develop a
 method which can be used to compare various language features while avoiding
 subjectivity or bias.
 
@@ -431,10 +440,10 @@ Originally, I planned to come up with a number of programs that embodied the
 core of systems programming, and then develop these programs in C++, D, and
 Rust. Then, using my own experiences, I would attempt to evaluate the
 effectiveness of each language for developing these programs. However, this
-approach is flawed in a number of ways. For example, perhaps I had attempted to
-implement a program with logic that requires a large amount of conditionals in
+approach is flawed in a number of ways. For example, suppose I had attempted to
+implement a program with logic that required a large amount of conditionals in
 Rust. I would likely have encountered a number of bugs with my initial
-implementation, but then eventually come up with a satisfactory result. Then,
+implementation but eventually have come up with a satisfactory result. Then,
 upon moving onto D, I would have avoided most of the errors that I encountered
 while working on the Rust implementation. My development process in D would
 likely have felt more natural, and the code would probably look eerily like
@@ -458,7 +467,7 @@ of five programs. The volunteers were not expected to spend more than 2 hours
 on each program, but most volunteers worked on each program to completion.
 
 The programs implemented by the volunteers were designed to cover an
-assortment of language features as well as highlighting common bugs. The
+assortment of language features as well as to highlight common bugs. The
 programs were as follows:
 
 \begin{enumerate}
@@ -507,7 +516,7 @@ either manipulate the ``data pointer'' in some way (by incrementing,
 decrementing, etc.), or perform I/O on the byte pointed at by the pointer.
 
 This program served as a kind of ``capstone'' for the study. It is larger than
-the other programs, and involves file I/O and involved pointer manipulation.
+the other programs, and involves file I/O and pointer manipulation.
 
 \end{enumerate}
 
