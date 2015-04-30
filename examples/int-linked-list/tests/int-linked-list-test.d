@@ -8,10 +8,10 @@ unittest {
     assert(list.size() == 0);
 }
 
-/// Add a single element
+// Add a single element
 unittest {
     auto list = new IntegerLinkedList;
-    list.insert(1, 0);
+    list.insert(0, 0);
     assert(list.size() == 1);
     assert(list.head() == 0);
 }
@@ -51,4 +51,14 @@ unittest {
     assert(list.remove(0) == 1);
 }
 
-void main() { }
+/// Test that head and tail work as expected
+unittest {
+    auto list = new IntegerLinkedList;
+    list.insert(0, 2);
+    list.insert(0, 1);
+    list.insert(2, 3);
+    assert(list.head() == 1);
+    assert(list.tail() == 3);
+}
+
+void main() {}
