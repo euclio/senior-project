@@ -1,0 +1,8 @@
+[package]
+name = "int_linked_list"
+version = "0.1.0"
+authors = ["Andy Russell <arussell123@gmail.com"]
+
+[lib]
+name = "int_linked_list"
+path = "int_linked_list.rs"
