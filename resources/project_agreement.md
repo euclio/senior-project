@@ -260,7 +260,7 @@ interface ArrayList<E> {
 
 Implement the [parallel mergesort
 algorithm](http://en.wikipedia.org/wiki/Merge_sort#Parallel_merge_sort). This
-algorithm should use [std.parallelism] (D) or [std::thread] (Rust). You should
+algorithm should use [std.parallelism] \(D) or [std::thread] \(Rust). You should
 also implement a sequential threshold of 10, meaning that if the number of
 elements in a subarray is less than 10, you should not fork a new thread.
 
