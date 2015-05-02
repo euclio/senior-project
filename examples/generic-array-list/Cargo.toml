@@ -1,0 +1,8 @@
+[package]
+name = "generic_array_list"
+version = "0.1.0"
+authors = ["Andy Russell <arussell123@gmail.com"]
+
+[lib]
+name = "generic_array_list"
+path = "generic_array_list.rs"
