@@ -1,0 +1,8 @@
+[package]
+name = "sentence-splitter"
+version = "0.1.0"
+authors = ["Andy Russell <arussell123@gmail.com"]
+
+[[bin]]
+name = "sentence_splitter"
+path = "sentence_splitter.rs"

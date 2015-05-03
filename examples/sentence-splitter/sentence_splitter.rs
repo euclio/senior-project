@@ -13,7 +13,8 @@ fn split_sentences(input: String) {
     let mut sentence_boundary = 0;
 
     // Find the next plausible sentence boundary.
-    for (mut pos, _) in chars.iter().enumerate().filter(|&(_, &c)| c == '.' || c == '!' || c == '?') {
+    for (mut pos, _) in chars.iter().enumerate().filter(
+            |&(_, &c)| c == '.' || c == '!' || c == '?') {
         // Periods followed by whitespace followed by a lower case letter are not sentence
         // boundaries.
         if pos + 2 < input.len() &&

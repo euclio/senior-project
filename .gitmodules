@@ -1,3 +1,0 @@
-[submodule "examples/cmake/Modules/cmake-d"]
-	path = examples/cmake/Modules/cmake-d
-	url = https://github.com/dcarp/cmake-d
