@@ -22,7 +22,8 @@ impl IntegerLinkedList {
     pub fn insert(&mut self, index: usize, element: i32) {
         if index == 0 && self.num_nodes > 0 {
             let old_head = mem::replace(&mut self.head, None);
-            let new_head = Node::new_with_tail(element, Some(Box::new(old_head.unwrap())));
+            let new_head =
+                Node::new_with_tail(element, Some(Box::new(old_head.unwrap())));
             self.head = Some(new_head);
             self.num_nodes += 1;
             return
@@ -140,84 +141,3 @@ impl Node {
         }
     }
 }
-
-
-/*
-pub struct IntegerLinkedList {
-    head: Option<Box<IntListNode>>,
-    size: i32
-}
-
-impl IntegerLinkedList {
-    fn ensure_capacity(&self, index: i32) {
-        if index > self.size() {
-            panic!(format!("index {} out of range", index));
-        }
-    }
-
-    fn traverse<'s>(&'s mut self, index: i32) -> &'s mut Option<Box<IntListNode>> {
-        self.ensure_capacity(index);
-
-        let mut elementsToGo = index;
-
-        let mut current = &mut self.head;
-
-        /* for _ in 0..elementsToGo {
-            current = current.unwrap().next;
-        } */
-
-        current
-    }
-
-    pub fn insert(&mut self, index: i32, element: i32) {
-        self.ensure_capacity(index);
-
-        let mut current = self.traverse(index);
-
-        match *current {
-            ref mut node @ Some(..) => {
-                let old = mem::replace(&mut node, Some(Box::new(IntListNode::new_with_tail(element, *node))));
-            },
-            None => *current = Some(Box::new(IntListNode::new(element))),
-        }
-
-        self.size += 1;
-    }
-
-    /* pub fn remove(&self, index: i32) -> i32 {
-        self.ensure_capacity(index);
-
-        let &mut current = self.traverse(index);
-        let value = (*current.unwrap()).element;
-        current = (*current.unwrap()).next;
-
-        self.size -= 1;
-        value
-    } */
-
-    pub fn head(&self) -> Option<i32> {
-        match self.head {
-            Some(ref node) => Some(node.element),
-            None => None
-        }
-    }
-
-    pub fn size(&self) -> i32 {
-        self.size
-    }
-}
-
-struct IntListNode {
-    element: i32,
-    next: Option<Box<IntListNode>>
-}
-
-impl IntListNode {
-    fn new(element: i32) -> IntListNode {
-        IntListNode { element: element, next: None }
-    }
-
-    fn new_with_tail(element: i32, next: Option<Box<IntListNode>>) -> IntListNode {
-        IntListNode { element: element, next: next }
-    }
-}*/

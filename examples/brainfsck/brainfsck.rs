@@ -43,7 +43,8 @@ fn parse_labels(file: &mut File) -> IoResult<HashMap<u64, u64>> {
     Ok(labels)
 }
 
-fn seek_to_label_match(file: &mut File, labels: &HashMap<u64, u64>) -> IoResult<()> {
+fn seek_to_label_match(file: &mut File, labels: &HashMap<u64, u64>)
+        -> IoResult<()> {
     let file_pos = &try!(file.tell());
     let label_match = *labels.get(file_pos).unwrap() as i64;
     try!(file.seek(label_match, SeekSet));
@@ -51,8 +52,8 @@ fn seek_to_label_match(file: &mut File, labels: &HashMap<u64, u64>) -> IoResult<
     Ok(())
 }
 
-fn process_op_code(file: &mut File, labels: &HashMap<u64, u64>, cells: &mut [i32],
-                 index: &mut usize) -> IoResult<()> {
+fn process_op_code(file: &mut File, labels: &HashMap<u64, u64>,
+                   cells: &mut [i32], index: &mut usize) -> IoResult<()> {
     let op_code = char::from_u32(try!(file.read_byte()) as u32).unwrap();
 
     match op_code {
@@ -102,7 +103,8 @@ fn main() {
         match process_op_code(&mut file, &labels, &mut cells, &mut index) {
             Ok(_) => {}
             Err(err) => {
-                // The file can't be read anymore, don't do anything and assume it worked.
+                // The file can't be read anymore, don't do anything and assume
+                // it worked.
                 break
             }
         }

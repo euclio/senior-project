@@ -1,4 +1,4 @@
-\documentclass[draftcopy]{srpaper}
+\documentclass[finalcopy]{srpaper}
 
 \usepackage[toc,page]{appendix}
 \usepackage{booktabs}
@@ -232,11 +232,13 @@ must avoid it at all costs.
 
 // Allocates 10 elements on the heap.
 std::unique_ptr<int[]> elementsPtr(new int[10]);
-std::array<int, 10> elementsArray;      // Avoids explicitly using `new'
+// Using std::array avoids explicitly using `new'.
+std::array<int, 10> elementsArray;
 
 // ...
 
-// Memory is released when the unique_ptr and array go out of scope.
+// Memory is freed when the unique_ptr and array go out of
+// scope.
 \end{minted}
 \label{lst:cppmodernmemory}
 \caption{Modern C++ memory management.}
@@ -639,6 +641,104 @@ each language.
 \subsection{Rust}
 \begin{mdframed}[linecolor=black]
 \inputminted[fontsize=\scriptsize]{rust}{../examples/sentence-splitter/sentence_splitter.rs}
+\end{mdframed}
+
+\section{Integer Linked List}
+\subsection{C++}
+\begin{mdframed}[linecolor=black]
+\inputminted[fontsize=\scriptsize]{cpp}{../examples/int-linked-list/int_linked_list.hpp}
+\end{mdframed}
+
+\begin{mdframed}[linecolor=black]
+\inputminted[fontsize=\scriptsize]{cpp}{../examples/int-linked-list/int_linked_list.cpp}
+\end{mdframed}
+
+\subsection{D}
+\begin{mdframed}[linecolor=black]
+\inputminted[fontsize=\scriptsize]{d}{../examples/int-linked-list/int_linked_list.d}
+\end{mdframed}
+
+\subsubsection{Test Case}
+\begin{mdframed}[linecolor=black]
+\inputminted[fontsize=\scriptsize]{d}{../examples/int-linked-list/tests/int-linked-list-test.d}
+\end{mdframed}
+
+\subsection{Rust}
+\begin{mdframed}[linecolor=black]
+\inputminted[fontsize=\scriptsize]{rust}{../examples/int-linked-list/int_linked_list.rs}
+\end{mdframed}
+
+\subsubsection{Test Case}
+\begin{mdframed}[linecolor=black]
+\inputminted[fontsize=\scriptsize]{rust}{../examples/int-linked-list/tests/int-linked-list-test.rs}
+\end{mdframed}
+
+\section{Generic Array List}
+\subsection{C++}
+\begin{mdframed}[linecolor=black]
+\inputminted[fontsize=\scriptsize]{cpp}{../examples/generic-array-list/generic_array_list.hpp}
+\end{mdframed}
+
+\begin{mdframed}[linecolor=black]
+\inputminted[fontsize=\scriptsize]{cpp}{../examples/generic-array-list/generic_array_list.cpp}
+\end{mdframed}
+
+\subsection{D}
+\begin{mdframed}[linecolor=black]
+\inputminted[fontsize=\scriptsize]{d}{../examples/generic-array-list/generic_array_list.d}
+\end{mdframed}
+
+\subsubsection{Test Case}
+\begin{mdframed}[linecolor=black]
+\inputminted[fontsize=\scriptsize]{d}{../examples/generic-array-list/tests/generic_array_list_test.d}
+\end{mdframed}
+
+\subsection{Rust}
+\begin{mdframed}[linecolor=black]
+\inputminted[fontsize=\scriptsize]{rust}{../examples/generic-array-list/generic_array_list.rs}
+\end{mdframed}
+
+\subsubsection{Test Case}
+\begin{mdframed}[linecolor=black]
+\inputminted[fontsize=\scriptsize]{rust}{../examples/generic-array-list/tests/generic-array-list-test.rs}
+\end{mdframed}
+
+\section{Parallel Merge Sort}
+\subsection{C++}
+\begin{mdframed}[linecolor=black]
+\inputminted[fontsize=\scriptsize]{cpp}{../examples/parallel-merge-sort/parallel_merge_sort.cpp}
+\end{mdframed}
+
+\subsection{D}
+\begin{mdframed}[linecolor=black]
+\inputminted[fontsize=\scriptsize]{d}{../examples/parallel-merge-sort/parallel_merge_sort.d}
+\end{mdframed}
+
+\subsection{Rust}
+\begin{mdframed}[linecolor=black]
+\inputminted[fontsize=\scriptsize]{rust}{../examples/parallel-merge-sort/parallel_merge_sort.rs}
+\end{mdframed}
+
+\section{Brainfuck Interpreter}
+
+\subsection{C++}
+\begin{mdframed}[linecolor=black]
+\inputminted[fontsize=\scriptsize]{cpp}{../examples/brainfsck/brainfsck.cpp}
+\end{mdframed}
+
+\subsection{D}
+\begin{mdframed}[linecolor=black]
+\inputminted[fontsize=\scriptsize]{d}{../examples/brainfsck/brainfsck.d}
+\end{mdframed}
+
+\subsection{Rust}
+\begin{mdframed}[linecolor=black]
+\inputminted[fontsize=\scriptsize]{rust}{../examples/brainfsck/brainfsck.rs}
+\end{mdframed}
+
+\subsection{Brainfuck Test Case (``Hello World'')}
+\begin{mdframed}[linecolor=black]
+\inputminted[fontsize=\scriptsize]{brainfuck}{../examples/brainfsck/tests/hello.bf}
 \end{mdframed}
 
 \end{document}
