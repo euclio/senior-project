@@ -53,7 +53,7 @@ fn split_sentences(input: String) {
             continue
         }
 
-        if chars[pos + 1] == ',' {
+        if pos + 1 < input.len() && chars[pos + 1] == ',' {
             continue
         }
 
@@ -63,9 +63,11 @@ fn split_sentences(input: String) {
         }
 
         // We passed all the special conditions, so we probably have a sentence.
-        let sentence: String =
-                chars[sentence_boundary..pos+1].iter().map(|&x| x).collect();
-        println!("{}", sentence);
+        if sentence_boundary < pos {
+            let sentence: String =
+                    chars[sentence_boundary..pos + 1].iter().map(|&x| x).collect();
+            println!("{}", sentence);
+        }
 
         sentence_boundary = pos + 2;
     }
