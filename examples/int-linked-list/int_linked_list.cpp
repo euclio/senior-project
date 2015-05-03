@@ -4,10 +4,12 @@
 #include "int_linked_list.hpp"
 
 IntLinkedList::Node::Node(int element) : element(element), next(nullptr) {}
+IntLinkedList::Node::Node(int element, std::shared_ptr<Node> next) :
+    element(element), next(next) {}
 
 std::shared_ptr<IntLinkedList::IntLinkedList::Node>
 IntLinkedList::traverse(size_t num_elements) const {
-    std::shared_ptr<Node> current (this->head);
+    std::shared_ptr<Node> current (headNode);
 
     size_t elements_to_go = num_elements;
     if (num_elements > this->size()) {
@@ -40,4 +42,16 @@ int IntLinkedList::remove(size_t index) {
 
 size_t IntLinkedList::size() const {
     return this->num_nodes;
+}
+
+int IntLinkedList::get(size_t index) const {
+    return traverse(index)->element;
+}
+
+int IntLinkedList::head() const {
+    return headNode->element;
+}
+
+int IntLinkedList::tail() const {
+    return traverse(num_nodes - 1)->element;
 }
