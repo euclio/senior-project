@@ -1,0 +1,8 @@
+[package]
+name = "brainfsck"
+version = "0.1.0"
+authors = ["Andy Russell <arussell123@gmail.com"]
+
+[[bin]]
+name = "brainfsck"
+path = "brainfsck.rs"
