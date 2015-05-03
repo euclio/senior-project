@@ -1,0 +1,8 @@
+[package]
+name = "parallel_merge_sort"
+version = "0.1.0"
+authors = ["Andy Russell <arussell123@gmail.com"]
+
+[[bin]]
+name = "parallel_merge_sort"
+path = "parallel_merge_sort.rs"
