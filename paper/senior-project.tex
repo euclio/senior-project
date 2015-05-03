@@ -7,7 +7,8 @@
 \usepackage{listings}
 \usepackage{mdframed}
 \usepackage[outputdir=latexmk]{minted}
-\usepackage{pdfpages}
+\usepackage{longtable}
+\usepackage{ltablex}
 \usepackage{url}
 \usepackage{verbatimbox}
 
@@ -596,13 +597,17 @@ documents contain explanations of the project expectations, brief descriptions
 of the programs to be implemented, and installation instructions for the
 languages themselves.
 
-The documents were written using Markdown. These versions included in this
-appendix are PDF renderings of the documents as they appear online at
+The documents were written using Markdown. The versions included in this
+appendix are rendered from \LaTeX{} generated from the Markdown source. The
+documents appear online at
 \url{https://github.com/euclio/senior-project/tree/master/resources}.
 
-\includepdf[pages={-}]{../resources/project_agreement.pdf}
-\includepdf[pages={-}]{../resources/d_resources.pdf}
-\includepdf[pages={-}]{../resources/rust_resources.pdf}
+\clearpage
+\input{../resources/project_agreement.tex}
+\clearpage
+\input{../resources/d_resources.tex}
+\clearpage
+\input{../resources/rust_resources.tex}
 
 \chapter{Solutions}\label{app:solutions}
 This appendix includes my solutions to the problems that were given to my

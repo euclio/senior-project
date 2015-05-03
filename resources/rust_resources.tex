@@ -1,0 +1,110 @@
+\section{Rust Resources}\label{rust-resources}
+
+\subsection{Installation}\label{installation}
+
+\href{https://github.com/rust-lang/rust}{Rust} is a very volatile
+language, with breaking changes being brought into the master branch
+almost every day. Most developers who use Rust use the nightly releases
+which means that they must constantly update their code to deal with the
+most recent breaking changes. Since I do not want to introduce any
+additional overhead to the project, we will be sticking to the
+\textbf{1.0.0-alpha.2} release of Rust. Please ensure that you use this
+version in order to keep source compatibility during your time working
+on the project.
+
+You may install Rust using one of the 1.0.0-alpha.2 (\textbf{not
+nightly}) binary installers
+\href{http://www.rust-lang.org/install.html}{located here}.
+
+If you have problems with the binary installers, you may install Rust
+from source in the following way. If you are attempting to build Rust on
+\lstinline!project!, you may skip step 1, as the dependencies are
+already installed.
+
+\begin{enumerate}
+\def\labelenumi{\arabic{enumi}.}
+\item
+  Install dependencies
+
+  Use homebrew or your distro's package manager to install
+
+  \begin{itemize}
+  \itemsep1pt\parskip0pt\parsep0pt
+  \item
+    \lstinline!g++! 4.7 or \lstinline!clang++! 3.7
+  \item
+    \lstinline!python! 2.6 or later (not 3.x)
+  \item
+    GNU \lstinline!make! 3.81 or later
+  \item
+    \lstinline!curl!
+  \item
+    \lstinline!git!
+  \end{itemize}
+\item
+  Download and build Rust:
+
+\begin{lstlisting}[language=sh]
+$ git clone https://github.com/rust-lang/rust.git && cd rust
+$ git checkout 1.0.0-alpha.2
+$ ./configure --prefix=$PWD
+$ make -j5 && make install
+\end{lstlisting}
+
+  This will take a while, on my laptop it took just over an hour to
+  compile.
+\item
+  Add Rust to your path.
+
+\begin{lstlisting}[language=sh]
+echo "export PATH=\$PATH:$PWD/bin" >> ~/.bashrc
+source ~/.bashrc
+\end{lstlisting}
+
+  Test that rust installed correctly.
+
+\begin{lstlisting}[language=sh]
+$ rustc --version
+rustc 1.0.0-dev
+\end{lstlisting}
+\end{enumerate}
+
+\subsection{Documentation}\label{documentation}
+
+Note that he docs are pinned to the 1.0.0-alpha.2 release.
+
+\begin{itemize}
+\itemsep1pt\parskip0pt\parsep0pt
+\item
+  \href{http://doc.rust-lang.org/1.0.0-alpha.2/index.html}{Rust
+  Documentation}
+\item
+  \href{http://rustbyexample.com/}{Rust by Example}
+\end{itemize}
+
+\emph{Note:} since Rust is changing so rapidly, there is a chance that
+Rust by Example will be outdated. The official documentation and
+associated book will be correct, however.
+
+You should read the following resources before getting starting with
+Rust, though you will likely find other sections helpful:
+
+\begin{itemize}
+\itemsep1pt\parskip0pt\parsep0pt
+\item
+  \href{http://doc.rust-lang.org/1.0.0-alpha.2/book/basic.html}{All of
+  Chapter 2: Basics} (skip the installation chapter)
+\item
+  \href{http://doc.rust-lang.org/1.0.0-alpha.2/book/method-syntax.html}{Method
+  Syntax} (classes)
+\item
+  \href{http://doc.rust-lang.org/1.0.0-alpha.2/book/pointers.html}{Pointers}
+  and
+  \href{http://doc.rust-lang.org/1.0.0-alpha.2/book/ownership.html}{Ownership}
+\item
+  \href{http://doc.rust-lang.org/1.0.0-alpha.2/book/generics.html}{Generics}
+\item
+  \href{http://doc.rust-lang.org/1.0.0-alpha.2/book/concurrency.html}{Concurrency}
+\item
+  \href{http://rustbyexample.com/file.html}{File I/O}
+\end{itemize}
