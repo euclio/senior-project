@@ -28,11 +28,11 @@ For my project, I am interested in the types of errors that are common
 to each of the languages you will be working in. Specifically, here are
 the types of errors I am studying:
 
-\begin{longtable}[c]{@{}ll@{}}
+\begin{center}
+\begin{tabular}[c]{@{}lp{9cm}@{}}
 \toprule
-Category & Description\tabularnewline
+Category & Description \\
 \midrule
-\endhead
 Syntax error & Any error caused by your program failing to parse. Could
 be a typo in a variable name, forgetting to put braces,
 etc.\tabularnewline
@@ -43,7 +43,8 @@ Resource error & The incorrect use of memory management. For example,
 your program dereferences a \lstinline!NULL! pointer or uses deallocated
 memory.\tabularnewline
 \bottomrule
-\end{longtable}
+\end{tabular}
+\end{center}
 
 In order to obtain data on the types of errors that you run into, I
 would like you to keep a log of every error you run into while working
@@ -233,14 +234,14 @@ interface:
  */
 interface IntegerLinkedList {
   /**
-   * Inserts an element into the linked list at the specified index, shifting
-   * any elements already in its position down.
+   * Inserts an element into the linked list at the specified index,
+   * shifting any elements already in its position down.
    */
   public void insert(int index, int element);
 
   /**
-   * Removes an element from the specified index, shifting any elements already
-   * in the list back up.
+   * Removes an element from the specified index, shifting any elements
+   * already in the list back up.
    * @return The element that was removed.
    */
   public int remove(int index);
@@ -308,14 +309,14 @@ The ArrayList class should implement the following Java-like interface:
  */
 interface ArrayList<E> {
   /**
-   * Inserts an element into the array at the specified index, shifting any
-   * elements already in the list down.
+   * Inserts an element into the array at the specified index,
+   * shifting any elements already in the list down.
    */
   public void insert(int index, E element);
 
   /**
-   * Removes an element from the specified index, shifting any elements past its
-   * position back up.
+   * Removes an element from the specified index, shifting any
+   * elements past its position back up.
    * @return The element that was removed.
    */
   public E remove(int index);
