@@ -9,45 +9,53 @@ template<typename E>
 void GenericArrayList<E>::resize(size_t newSize) {
     std::unique_ptr<E[]> newArray = new E[newSize];
 
-    std::copy(std::begin(this->backingArray), std::end(this->backingArray),
+    std::copy(std::begin(backingArray), std::end(backingArray),
             std::begin(newArray));
 
-    this->backingArray = newArray;
+    backingArray = newArray;
 }
 
 template<typename E>
 void GenericArrayList<E>::insert(size_t index, E element) {
-    if (this->size() + 1 > this->backingArraySize) {
-        this->resize(this->backingArraySize * 2);
+    if (size() + 1 > backingArraySize) {
+        resize(backingArraySize * 2);
     }
 
     // Shift the elements up
-    for (size_t i = this->size(); i > index; --i) {
-        this->backingArray[i] = this->backingArray[i - 1];
+    for (size_t i = size(); i > index; --i) {
+        backingArray[i] = backingArray[i - 1];
     }
 
-    this->backingArray[index] = element;
+    backingArray[index] = element;
 
-    this->size++;
-    this->backingArraySize++;
+    numElements++;
 }
 
 template<typename E>
 E GenericArrayList<E>::remove(size_t index) {
-    E value = this->backingArray[index];
+    E value = backingArray[index];
 
     // Shift the elements down
-    for (size_t i = index; i < this->size() - 1; ++i) {
-        this->backingArray[i] = this->backingArray[i + 1];
+    for (size_t i = index; i < size() - 1; ++i) {
+        backingArray[i] = backingArray[i + 1];
     }
 
-    this->size--;
-    this->backingArraySize--;
+    numElements--;
 
     return value;
 }
 
 template<typename E>
 size_t GenericArrayList<E>::size() const {
-    return this->size;
+    return numElements;
+}
+
+template<typename E>
+E GenericArrayList<E>::head() const {
+    return backingArray[0];
+}
+
+template<typename E>
+E GenericArrayList<E>::tail() const {
+    return backingArray[numElements];
 }

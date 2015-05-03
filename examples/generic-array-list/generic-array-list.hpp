@@ -10,12 +10,15 @@ class GenericArrayList {
         std::unique_ptr<E[]> backingArray;
         size_t backingArraySize = initialSize;
         void resize(size_t newSize);
-
+        size_t numElements;
     public:
         GenericArrayList();
         void insert(size_t index, E element);
         E remove(size_t index);
         size_t size() const;
+        E head() const;
+        E tail() const;
+        E get(size_t index) const;
 };
 
 
