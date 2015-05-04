@@ -567,21 +567,81 @@ behavior of attempting to access iterators out of bounds.
 
 \begin{table}[h]
 \centering
-\begin{tabular}{crrrl}
+\begin{tabular}{lrrrp{5cm}}
 \toprule
 Volunteer & Syntax & Logic & Resource & Notes \\
 \midrule
-A & 6 & 2 & 0 & \\
-B & 5 & 0 & 1 & Did not finish \\
-C & 8 & 2 & 0 & Test suite passes \\
-D & 2 & 1 & 0 & Program enters infinite loop on ellipsis \\
-E & 18 & 5 & 0 & Test suite passes \\
-F & 15 & 0 & 0 & Passes \\
-G & 4 & 2 & 0 & Passes \\
+A (D) & 6 & 2 & 0 & Blah \\
+B (Rust) & 6 & 0 & 0 & Did not finish \\
+C (D) & 8 & 2 & 0 & Passes test suite \\
+D (D) & 2 & 1 & 0 & Infinite loop on ellipsis \\
+E (Rust) & 18 & 5 & 0 & Passes test suite \\
+F (Rust) & 15 & 0 & 0 & Passes test suite \\
+G (D) & 4 & 2 & 0 & Passes test suite \\
 \bottomrule
 \end{tabular}
 \caption{Sentence splitter error log summary}
 \label{tab:sentencesplitter}
+\end{table}
+
+\begin{table}[h]
+\centering
+\begin{tabular}{lrrrp{5cm}}
+\toprule
+Volunteer & Syntax & Logic & Resource & Notes \\
+\midrule
+B (Rust) & 10 & 0 & 0 & Did not finish \\
+C (D) & 9 & 0 & 1 & Passes test suite \\
+D (D) & 1 & 0 & 3 & Segfault on \texttt{remove()} \\
+G (D) & 6 & 1 & 2 & Passes test suite \\
+\bottomrule
+\end{tabular}
+\caption{Integer linked list error log summary}
+\label{tab:intlinkedlist}
+\end{table}
+
+\begin{table}[h]
+\centering
+\begin{tabular}{lrrrp{5cm}}
+\toprule
+Volunteer & Syntax & Logic & Resource & Notes \\
+\midrule
+B (Rust) & & & & \\
+D (D) & 2 & 0 & 0 & Passes test suite \\
+G (D) & 4 & 0 & 0 & Passes, \texttt{head()} and \texttt{tail()} not implemented \\
+\bottomrule
+\end{tabular}
+\caption{Generic array list error log summary}
+\label{tab:genericarraylist}
+\end{table}
+
+\begin{table}[h]
+\centering
+\begin{tabular}{lrrrp{5cm}}
+\toprule
+Volunteer & Syntax & Logic & Resource & Notes \\
+\midrule
+B (Rust) & & & & \\
+D (D) & 3 & 1 & 0 & Passes test suite \\
+G (D) & 3 & 2 & 0 & Passes test suite \\
+\bottomrule
+\end{tabular}
+\caption{Parallel mergesort error log summary}
+\label{tab:parallelmergesort}
+\end{table}
+
+\begin{table}[h]
+\centering
+\begin{tabular}{lrrrp{5cm}}
+\toprule
+Volunteer & Syntax & Logic & Resource & Notes \\
+\midrule
+D (D) & 9 & 0 & 0 & Segmentation fault \\
+G (D) & 4 & 1 & 0 & Fails test suite \\
+\bottomrule
+\end{tabular}
+\caption{Brainfuck interpreter error log summary}
+\label{tab:brainfuckinterpreter}
 \end{table}
 
 \section{Evaluation}
