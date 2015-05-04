@@ -2,6 +2,7 @@
 
 \usepackage[toc,page]{appendix}
 \usepackage{booktabs}
+\usepackage{epigraph}
 \usepackage{etoolbox}
 \usepackage{hyperref}
 \usepackage{listings}
@@ -42,7 +43,8 @@ design goals have been met.}
 help through every step of writing this document. He is grateful to Sam Posner
 and Andrew Fishberg as well for their inputs on determining the set of programs
 for the study. Additional thanks go to the volunteers who dedicated their time
-and effort.}
+and effort to the study. And lastly, a special thanks to the author's parents
+for their unwavering support and advice in whatever his endeavors.}
 
 \begin{document}
 \frontmatter
@@ -63,12 +65,12 @@ resistant to debugging.}.
 
 Mistakes in managing memory can lead to run-time crashes or security
 vulnerabilities such as buffer overflow or format string
-attacks~\cite{Shahriar:2012:MPS:2187671.2187673}. While there are many tools
-designed to allow programmers to catch such errors, the ideal solution would be
-to eliminate the burden of manual memory management altogether. Other languages
-such as Java and C\#, inspired by this goal, have removed that need. However,
-due to their dependence on a virtual machine, they have sacrificed performance
-and the ability to interface directly with
+attacks~\cite{Shahriar:2012:MPS:2187671.2187673,Seacord:2013:SCC:2530475}.
+While there are many tools designed to allow programmers to catch such errors,
+the ideal solution would be to eliminate the burden of manual memory management
+altogether. Other languages such as Java and C\#, inspired by this goal, have
+removed that need. However, due to their dependence on a virtual machine, they
+have sacrificed performance and the ability to interface directly with
 hardware~\cite{Alexandrescu:2010:DPL:1875434}. The languages examined in this
 paper, D and Rust, do not use a virtual machine, instead opting for native
 compilation. The languages aim to match the low-level speed and power of C++
@@ -77,11 +79,15 @@ correctness standpoint.
 
 This paper aims to analyze the Rust and D programming languages from as
 objective a standpoint as possible. I primarily focus on the features that each
-language makes at compile time, with memory-safety and preprocessing feature
+language makes at compile time, with memory-safety and preprocessing features
 taking a particular emphasis, due to the misuse of these features causing
 dangerous errors in C++.
 
-\chapter{Background}
+\chapter{Background}\label{chap:background}
+
+\epigraph{``D was conceived by people who were tired of how clunky C++ is. Rust
+was conceived by peoples who were tired of how unsafe C++ is.''}{
+\textit{User kibwen \\ Hacker News}}
 
 In order to adequately discuss the design decisions that the implementors of
 Rust and D have made, it is important to determine a context from which we can
@@ -112,63 +118,221 @@ points:
 
 These principles serve to keep C++ close to its roots in C while maintaining
 the abstractions that make it a high-level language~\cite{stroustrup2013the}.
-C++ remains one of the most popular languages in the world.
+However, C++ is often criticized for its complicated and confusing behavior in
+situations such function overload resolution~\cite{Dewhurst:2005:CCK:1050971}.
+Despite its problems, C++ remains one of the most popular languages in the
+world.
 
 D was created in 2001 by Walter Bright, and later developed by Digital
 Mars~\cite{Doverview}. As the name indicates, D has drawn much inspiration from
-C++, as C++ did from C. However, D has made a number of backwards-incompatible
-changes from C++ in the process of achieving its design goals. The D website
-cites a number of reasons why D is necessary. Most relevant to this paper are
-its assertions about the inherent complexity in C++ due to the sheer number of
-features present in the language, the burden of explicit memory management, the
-difficulty in tracking down pointer bugs, and the hindrance of backwards
-compatibility with C~\cite{Doverview}. D, while less popular than C++,
-maintains a healthy online presence and is often promoted by C++ gurus such as
-Andrei Alexandrescu.
+C++, as C++ did from C. In Bright's own words, he wished to design a language
+as ``it should be done''~\cite{Alexandrescu:2010:DPL:1875434}. However, D has
+made a number of backwards-incompatible changes from C++ in the process of
+achieving its design goals. The D website cites a number of reasons why D is
+necessary. Most relevant to this paper are its assertions about the inherent
+complexity in C++ due to the sheer number of features present in the language,
+the burden of explicit memory management, the difficulty in tracking down
+pointer bugs, and the hindrance of backwards compatibility with
+C~\cite{Doverview}. D is often compared to C++: it is commonly thought of as a
+``better C++''~\cite{Alexandrescu:2010:DPL:1875434}. While less popular than
+C++, maintains a healthy online presence and is often promoted by C++ gurus
+such as Andrei Alexandrescu~\cite{Alexandrescu:2010:DPL:1875434}.
 
 Rust is a quite new programming language developed primarily by Mozilla
 starting in 2012. Rust aims to give programmers enough power to access the
 computer's hardware while providing ``strong guarantees about isolation,
 concurrency, and memory safety''~\cite{Matsakis:2014:RL:2663171.2663188}.
 Syntactically, Rust is a more radical departure from C++ than D. However, it
-has similar design goals. Despite not having a stable release, Rust generates a
+has similar design goals. It aims to be used in such performance-critical
+applications as operating systems and web browsers\footnote{Rust development is
+driven in particular by the Servo Project
+(\url{https://github.com/servo/servo}), an experimental web browser. Servo
+requirements have inspired a number of Rust features.}. Despite
+not having a stable release at the time of this writing, Rust generates a
 considerable amount of discussion and written code, as evidenced by the over
 one million downloads served by \url{crates.io}, Rust's package hosting
 website~\cite{Cratesio}.
 
-\section{Preprocessing, Macros, and Conditional Compilation}
+\section{Macros and Conditional Compilation}
 
-The C++ macro preprocessor is an integral part of the language. Perhaps the
-most common use of the feature is to \texttt{include} one file (the ``header'')
-within another. By defining the interface in the header, the implementation is
+Code generation is an extremely important feature of systems programming
+languages. Because low-level code is very dependent on the underlying
+hardware, different code must be generated for different platforms. Thus, C++,
+Rust, and D all have their own methods for generating code at compile-time.
+
+When compiling C++, code is first passed through the macro preprocessor, which
+performs textual replacements and substitutions depending on the instructions
+provided to the processor. These instructions are signaled by the presence of a
+`\#' at the beginning of the line. Listing~\ref{lst:cpreproc} demonstrates a
+simple preprocessor directive. Without the preprocessor, the code snippet would
+fail to compile due to an undefined identifier \texttt{THREE}. The preprocessor
+replaces all occurrences of \texttt{THREE} with the integer literal `3',
+allowing the assertion to pass~\cite{CppReference}.
+
+\begin{listing}[H]
+\begin{minted}{c}
+#define THREE 3
+
+assert(THREE == 3);
+\end{minted}
+\caption{The C macro preprocessor}
+\label{lst:cpreproc}
+\end{listing}
+
+Another use of the preprocessor is to generate code that would be tedious to
+write out by hand. The \texttt{max} function can be implemented as a macro that
+expands \texttt{max(a, b)} to \texttt{a > b ?\ a :\ b}. A macro is advantageous
+to a function because a function call introduces much more overhead than a
+conditional. While this implementation works in many cases, consider the code
+in Listing~\ref{lst:cmacrofail}. On first glance, one might expect the code to
+return 2, as \texttt{x} is preincremented, making it greater than \texttt{y}.
+The value would then be returned. Since macro expansion is simple textual
+replacement, the expression is actually evaluated twice, meaning that the value
+returned from \texttt{max} is actually 3~\cite{gnupreproc}. Such bugs are very
+subtle and difficult to avoid.
+
+\begin{listing}[H]
+\begin{minted}{c}
+#define max(A, B)  ((A) > (B) ? (A) : (B))
+
+int x = 1;
+int y = 1;
+
+int max = max(++x, y);    // Uh oh...
+
+// Expands to... (parentheses removed for clarity)
+int max = ++x > y ? ++x : y;
+\end{minted}
+\caption{Macro side-effect evaluation (bug)}
+\label{lst:cmacrofail}
+\end{listing}
+
+Despite this danger, the preprocessor is necessary to expose an interface of a
+class or library by using the \texttt{\#include} directive to insert the
+contents of one file (the ``header'') within another. The implementation is
 kept inside a single source file, and any number of other source files may use
-the interface's implementation. While the macro preprocessor is a necessary
-part of the language, it is inherently dangerous. The preprocessor works by
-modifying the actual text of the program, which can lead to syntax errors or
-subtle bugs that are difficult to solve. Another use of the preprocessor is
-for conditional compilation, where different code should be compiled depending
-on various conditions such as the underlying architecture or character-encoding
-support. Stroustrup advises that the C++ preprocessor should only be used for
-these cases~\cite{stroustrup2013the}.
+the interface's implementation. Listing~\ref{lst:header} contains a sample
+header file\footnote{The data structures in Appendix~\ref{app:solutions} also
+demonstrate the use of headers.}. This strategy works because C++ allows a
+programmer to separate declaration from definition. The header file contains
+declarations, which define the interface of a class or function. Another file
+contains the definition, or implementation, of the interface. Because a symbol
+must be defined and declared once, programmers must use ``include guards'' to
+ensure this constraint holds. Include guards work by checking if a certain
+preprocessor symbol is defined, which is usually based on the name of the file
+being included. If the symbol is defined, no text is included. Otherwise, the
+symbol is defined to prevent subsequent inclusion and the text of the header is
+included. A header file may be included multiple times as long as there is only
+one definition. Since C++ does not support modules, this use of the
+preprocessor is required to support multi-file programs.
 
-% TODO: Provide examples
+\begin{listing}[H]
+\begin{minted}{cpp}
+#ifndef HEADER_HPP
+#define HEADER_HPP
+
+int foo(int a, int b);
+
+#endif
+\end{minted}
+\begin{minted}{cpp}
+#include "header.hpp"
+
+int foo(int a, int b) {
+    // ...
+}
+\end{minted}
+\caption{C++ header file and definition}
+\label{lst:header}
+\end{listing}
+
+Another use of the preprocessor is for conditional compilation, where different
+code should be compiled depending on various conditions such as the underlying
+architecture or character-encoding support. For example, the code in
+Listing~\ref{lst:wincondition} will store different values in the \texttt{OS}
+variable depending on whether the software was compiled on Windows.
+
+\begin{listing}[H]
+\begin{minted}{cpp}
+#if defined(WIN32) || defined(_WIN32) || defined(__WIN32)
+static const std::string OS = "Windows";
+#else
+static const std::string OS = "Unix";
+#endif
+\end{minted}
+\caption{Conditional compilation in C++}
+\label{lst:wincondition}
+\end{listing}
+
+Achieving conditional compilation in this was is unfortunately an error-prone
+practice. Consider the situation where there is a typo (such as a missing
+double-quote) in the Windows branch, and compilation is attempted on Unix. The
+compilation would succeed, because the compiler would never see the
+Windows-specific branch of code. However, if compilation were attempted on
+Windows, compilation would fail. Unfortunately, the C macro preprocessor is the
+only way to obtain this result. Stroustrup advises minimizing the use of the
+C++ preprocessor, and that it should only be used for the specific cases of
+conditional compilation and header files~\cite{stroustrup2013the}.
 
 D provides safer alternatives to the C++ preprocessor, and, when possible,
 obviates its need entirely. For example, inclusion is handled by modules, which
-handle imports of symbols from other files. This also removes the need for
-include guards, because each symbol is only guaranteed to be imported once.
-Conditional compilation is achieved through the \texttt{version} keyword. D
-also contains an aggressive inliner, which removes the need to implement small
-functions as macros~\cite{pretod}.
+handle imports of symbols from other files, as seen in the data structures in
+Appendix~\ref{app:solutions}. This also removes the need for include guards,
+because each symbol is only guaranteed to be imported once from a module by the
+compiler. Through modules, the interface is inferred from the function
+declarations in the module, so there is no need to copy the interface, like
+the redundant function signature in Listing~\ref{lst:header}.
 
-In lieu of the preprocessor, Rust has an extremely powerful macro system.
+In D, conditional compilation is achieved through the \texttt{version}
+keyword~\cite{Armaly:2007:DPL:1234292.1234301}. Listing~\ref{lst:dwincondition}
+demonstrates how D would implement the same code as
+Listing~\ref{lst:wincondition}. Since the \texttt{version} keyword is part of
+the language grammar, syntax errors will be caught by the compiler regardless
+of what compile path the program requires. D also contains an aggressive
+inliner, which removes the need to implement small functions as
+macros~\cite{pretod}. Instead, the compiler will directly insert the function
+body into the caller's code, meaning that the compiled code has no function
+call at all.
+
+\begin{listing}[H]
+\begin{minted}{d}
+version (Windows) {
+    static const string OS = "Windows";
+} else {
+    static const string OS = "Unix";
+}
+\end{minted}
+\caption{Conditional compilation in D}
+\label{lst:dwincondition}
+\end{listing}
+
+Like D, Rust also has a module system to handle inclusion and multi-file
+compilation, so there is no need for a preprocessor. However, unlike D, Rust
+has a macro system. Rust macros are far more powerful than C++ macros, however.
 Rust macros operate on the abstract syntax tree of the program, rather than on
-the text. This allows macros to be type-safe and extend the language itself.
-In Rust, \texttt{println} is a macro that performs type-checking on its
-arguments to ensure that the format string contains the proper number of
-format placeholders for the arguments. In other languages, it might be
-possible to check this with a special code path in the compiler, but in Rust
-the language itself does the checking.
+the text. This allows macros to be type-safe and extend the language itself. In
+Rust, \texttt{println} is a macro that performs type-checking on its arguments
+to ensure that the format string contains the proper number of format
+placeholders for the arguments. In other languages, it might be possible to
+check this with a special code path in the compiler, but in Rust the language
+itself does the checking.
+
+Rust also has a safer alternative for conditional compilation. In Rust, one
+can write conditional code by applying attributes to the code itself. Like D,
+since the configuration attributes are part of the language, there is no worry
+that syntax errors will arise when compiling on different platforms.
+
+\begin{listing}[H]
+\begin{minted}{rust}
+#[cfg(target_family = "windows")]
+const OS: &'static str = "Windows";
+
+#[cfg(target_family = "unix")]
+const OS: &'static str = "Unix";
+\end{minted}
+\caption{Conditional compilation in Rust}
+\label{lst:dwincondition}
+\end{listing}
 
 \section{Memory Management}
 
@@ -179,22 +343,40 @@ bugs include memory leaks (forgetting to free allocated memory) and
 use-after-free (using a pointer to memory that has already been reclaimed by
 the memory manager). These bugs are often difficult to track down.
 
-C++'s memory management works similarly to its ancestor, C. In fact, due to to
-its commitment to backwards compatibility, C++ even inherits the
+In C++, all objects have a constructor and a destructor, which are functions
+that allocate and deallocate any memory needed by the object respectively. If
+the object is allocated on the stack, the constructor is run when the object
+is created, and the destructor is run when the object goes out of scope (the
+end of the innermost block). Stack memory is relatively easy to reason about,
+but the programmer must be careful to avoid passing a reference or pointer to
+a stack-allocated variable outside of the scope where the object was defined.
+This could lead to undefined behavior.
+
+Undefined behavior is characterized by the lack of a definition of what an
+implementation of C++ should do in a given situation~\cite{iso/iec}. In other
+words, if a program incurs undefined behavior, then an implementation is in no
+way required to act in any particular way. The program may not compile, may
+crash at run-time, or anything else. Clearly it is impossible to reason about
+the correctness of a program that causes undefined behavior, so C++ programmers
+must avoid it at all costs.
+
+C++'s heap memory management works similarly to its ancestor, C. In fact, due
+to to its commitment to backwards compatibility, C++ even inherits the
 \texttt{malloc()} and \texttt{free()} functions, as seen in
 Listing~\ref{lst:cmemory}. These functions allow the programmer to request and
 return blocks of memory to the free store, or heap. However, C++ programmers
 should never use these functions, instead opting for the \texttt{new} and
-\texttt{delete} operators. C++ has additional operators for array allocation:
-\texttt{new[]} and \texttt{delete[]}. Listing~\ref{lst:cppmemory} uses the
-operators to allocate an array. These keywords are slightly safer because the
-programmer no longer has to keep track of the exact size of the allocation, the
-programmer must still remember to to \texttt{delete} all memory acquired by
-\texttt{new} to avoid memory leaks, and refrain from using deallocated or
-unallocated memory to prevent invoking undefined
-behavior~\cite{stroustrup2013the}. In addition, the correct form of the keyword
-must be used, as using the non-array \texttt{delete} may leave the heap in an
-inconsistent state.
+\texttt{delete} operators, which ensure that the correct amount of memory is
+requested and that constructors and destructors are run. C++ has additional
+operators for array allocation: \texttt{new[]} and \texttt{delete[]}.
+Listing~\ref{lst:cppmemory} uses the operators to allocate an array. These
+keywords are slightly safer because the programmer no longer has to keep track
+of the exact size of the allocation, the programmer must still remember to to
+\texttt{delete} all memory acquired by \texttt{new} to avoid memory leaks, and
+refrain from using deallocated or unallocated memory to prevent invoking
+undefined behavior~\cite{stroustrup2013the}. In addition, the correct form of
+the keyword must be used, as using the non-array \texttt{delete} may leave the
+heap in an inconsistent state.
 
 \begin{listing}[H]
 \begin{minted}{c}
@@ -206,7 +388,7 @@ int* elements = malloc(sizeof(int) * 10);
 /* Release the memory for reuse. */
 free(elements);
 \end{minted}
-\caption{C memory management.}
+\caption{C memory management}
 \label{lst:cmemory}
 \end{listing}
 
@@ -220,18 +402,9 @@ int[] elements = new int[10];
 // Release the memory for reuse.
 delete[] elements;      // Don't forget the `[]'!
 \end{minted}
-\caption{Primitive C++ memory management.}
+\caption{Primitive C++ memory management}
 \label{lst:cppmemory}
 \end{listing}
-
-Undefined behavior is
-characterized by the \textit{lack} of a definition of what an implementation of
-C++ should do in a given situation~\cite{iso/iec}. In other words, if a program
-incurs undefined behavior, then an implementation is in no way required to act
-in any particular way. The program may not compile, may crash at run-time, or
-act in any number of ways. Clearly it is impossible to reason about the
-correctness of a program that causes undefined behavior, so C++ programmers
-must avoid it at all costs.
 
 \begin{listing}
 \begin{minted}{c++}
@@ -249,7 +422,7 @@ std::array<int, 10> elementsArray;
 // scope.
 \end{minted}
 \label{lst:cppmodernmemory}
-\caption{Modern C++ memory management.}
+\caption{Modern C++ memory management}
 \end{listing}
 
 C++ programmers are well-aware of the problems that arise from using
@@ -261,21 +434,24 @@ allocation when possible, and in other cases use manager objects such as
     introduced in C++11.}. This idiom is known as ``Resource Acquisition Is
 Initialization'', or RAII~\cite{stroustrup2013the}. These containers help
 abstract memory management away from the programmer by ensuring \texttt{delete}
-is called when the pointer goes out of scope.
+is called when the pointer containers goes out of scope by calling it in their
+destructor.
 
 D's creators acknowledged the problems with manual memory management and opted
 to remove the need for it entirely. D handles memory management through a
 garbage collector. D classes are automatically allocated on the heap, and all
 other data is created on the stack. The garbage collector frees any memory that
 has gone out of scope (though not necessarily immediately after). This removes
-the need for the programmer to explicitly allocate and deallocate memory. Like
-C++, destructors are executed when variables go out of scope, allowing RAII
-behavior. In addition, D provides the ``Scope Guard'' statement, which offers
-more fine-grained control over when scope-dependent blocks of code should
-execute, seen in Listing~\ref{lst:dscope}. For example, if an exception is
-thrown, the code would print \texttt{success} and then \texttt{exited} on their
-own lines. If an exception was thrown, the code would print \texttt{failure},
-then \texttt{exited}.
+the need for the programmer to explicitly allocate and deallocate memory
+through \texttt{new} and \texttt{delete}. Like C++, destructors are executed
+when variables go out of scope, allowing RAII behavior. In addition, D provides
+the ``Scope Guard'' statement, which offers more fine-grained control over when
+scope-dependent blocks of code should execute, seen in
+Listing~\ref{lst:dscope}. For example, if an exception is thrown, the code
+would print \texttt{success} and then \texttt{exited} on their own lines. If an
+exception was thrown, the code would print \texttt{failure}, then
+\texttt{exited}. A possible use of this feature would be to guarantee that
+resources are closed properly when runtime exceptions are encountered.
 
 \begin{listing}[H]
 \begin{minted}{d}
@@ -288,7 +464,7 @@ try {
     // Code that may throw an exception...
 } catch (Exception e) {}
 \end{minted}
-\caption{D scope guards.}
+\caption{D scope guards}
 \label{lst:dscope}
 \end{listing}
 
@@ -306,14 +482,39 @@ though the goal is to eventually mark all of D's standard library as
 Rust, on the other hand, attempts to find a middle ground between the
 performance of C++ and the overhead of D. One of the interesting features of
 Rust is its guarantees about heap access. It accomplishes this by strictly
-enforcing the concept of ownership. Ownership can be seen in C++ by looking at
-the names of its pointer types\footnote{That is, \texttt{unique\_ptr},
-\texttt{shared\_ptr}, or \texttt{weak\_ptr}}. For example, a
-\texttt{unique\_ptr} only allows itself \texttt{unique\_ptr} to point at its
-memory. It enforces this by disallowing copying and requiring that reassignment
-be done through a move, which transfers ownership of a piece of memory from one
-object or scope to another. However, ownership transfer may introduce bugs, as
-shown in Listing~\ref{lst:cppuseaftermove}.
+enforcing the concept of ownership through the type system. Ownership means
+keeping track of which objects or functions ``own'' pieces of memory. For
+example, passing a pointer to a function means that that function is
+``borrowing'' the memory pointed to by the pointer. If we assume that the
+caller owns the memory, then the function should return the memory to the
+caller in a consistent state\footnote{That is, not deallocating or moving it.}.
+Since C++11, it is possible to explicitly declare the programmer intent for the
+owners of pointers. C++ pointer containers include \texttt{unique\_ptr},
+\texttt{shared\_ptr}, or \texttt{weak\_ptr}. For example, a
+\texttt{unique\_ptr} is the only owner of its memory. It enforces this by
+disallowing copying and requiring that reassignment be done through a move,
+which transfers ownership of a piece of memory from one object or scope to
+another. However, ownership transfer may introduce bugs, as shown in
+Listing~\ref{lst:cppuseaftermove}.
+
+\begin{listing}[h]
+\begin{minted}{cpp}
+#include <memory>
+#include <iostream>
+
+// Allocate an int on the heap
+std::unique_ptr<int> movedPtr(new int(10));
+
+// Change the int's owner to a new pointer.
+std::unique_ptr<int> ptr = std::move(movedPtr);
+
+// Attempt to dereference the pointers.
+std::cout << *ptr << std::endl;
+std::cout << *movedPtr << std::endl;    // Segfault!
+\end{minted}
+\caption{C++ use of moved value (bug)}
+\label{lst:cppuseaftermove}
+\end{listing}
 
 Rust avoids this class of bug entirely by guaranteeing at compile time that
 moved memory cannot be used. Attempting to compile
@@ -325,31 +526,12 @@ the programmer were to use an \texttt{Rc} pointer, which allows multiple
 readers and writers through reference counting)~\cite{RustPointerGuide}.
 
 \begin{listing}[h]
-\begin{minted}{cpp}
-#include <memory>
-#include <iostream>
-
-// Allocate an int on the heap
-std::unique_ptr<int> movedPtr(new int(10));
-
-// Change the int's owner to a new pointer.
-std::unique_ptr<int> ptr = std::move(ptr);
-
-// Attempt to dereference the pointers.
-std::cout << *ptr << std::endl;
-std::cout << *movedPtr << std::endl;    // Segfault!
-\end{minted}
-\caption{C++ use of moved value (bug).}
-\label{lst:cppuseaftermove}
-\end{listing}
-
-\begin{listing}[h]
 \begin{minted}{rust}
 let x = Box::new(5i);       // Allocate an int on the heap.
 let y = x;                  // Change the int's owner to y.
 println!("{}", x);          // error: use of moved value: 'x'
 \end{minted}
-\caption{Rust use of moved value (compilation error).}
+\caption{Rust use of moved value (compilation error)}
 \label{lst:rustuseaftermove}
 \end{listing}
 
@@ -367,6 +549,14 @@ which I have based my own methodology~\cite{AlGhamdi:1993:CAP:162754.162876}.
 Their paper summarizes twelve methodologies, and the factors that may be used
 to achieve an apt comparison. The following list summarizes the methodologies
 expounded in their paper that I will employ in my project.
+
+Other papers have attempted a feature-based
+comparison~\cite{comparingFunctional}, with no evaluation. Others have
+performed such a comparison and then evaluated the features within different
+domains~\cite{Feuer:1982:CPL:356869.356872}. I performed a feature-based
+comparison in Chapter~\ref{chap:background}. I chose not to evaluate these
+features alone due to focusing on the general domain of systems programming.
+Instead, my evaluation remains at a language-level rather than feature-level.
 
 \begin{enumerate}
 \item Comparison of Philosophy and History
@@ -545,7 +735,7 @@ to my volunteers. I found that my hypothesis was true.
 
 \section{Experimental Results}
 
-I was able to recruit seven volunteers that generously donated their time and
+I was able to recruit seven volunteers that generously offered their time and
 effort to my project. Each volunteer was very experienced in programming: six
 were computer science majors, and one was a computer science minor.
 Figure~\ref{fig:sampleerrorlog} contains a snippet of an error log submitted
@@ -565,11 +755,19 @@ Syntax error - Used [char] instead of &[char] in initialization of array - Compi
 \label{fig:sampleerrorlog}
 \end{figure}
 
+Unfortunately, due to time constraints, many volunteers were unable to follow
+through with the entire study. I have obtained results from those who were
+able to attempt each program, though by the fourth program I only had
+volunteers who were writing D left.
+
 All of my volunteers were able to complete the sentence splitter. It was very
 interesting to see the types of errors that were encountered during this phase
 of the experiment. As expected, Rust programmers found many more compile time
 issues. Surprisingly, D programmers ran into segmentation faults due to the
-behavior of attempting to access iterators out of bounds.
+behavior of attempting to access iterators out of bounds. Though this program
+required no advanced language features, there was a fair amount of difficultly
+in ensuring that arrays were not accessed invalidly. The errors are summarized
+in Table~\ref{tab:sentencesplitter}.
 
 \begin{table}[h]
 \centering
@@ -577,7 +775,7 @@ behavior of attempting to access iterators out of bounds.
 \toprule
 Volunteer & Syntax & Logic & Resource & Notes \\
 \midrule
-A (D) & 6 & 2 & 0 & Blah \\
+A (D) & 6 & 2 & 0 & Does not compile \\
 B (Rust) & 6 & 0 & 0 & Did not finish \\
 C (D) & 8 & 2 & 0 & Passes test suite \\
 D (D) & 2 & 1 & 0 & Infinite loop on ellipsis \\
@@ -589,6 +787,13 @@ G (D) & 4 & 2 & 0 & Passes test suite \\
 \caption{Sentence splitter error log summary}
 \label{tab:sentencesplitter}
 \end{table}
+
+Four volunteers attempted the integer linked list. Volunteer B was
+particularly frustrated by this assignment, as it was extremely difficult to
+implement a true linked list in Rust without resorting to language facilities
+guarded by the \texttt{unsafe} keyword. While it is not discouraged to use
+such features, for a beginner they are understandably intimidating. The
+results from this program are located in Table~\ref{tab:intlinkedlist}.
 
 \begin{table}[h]
 \centering
@@ -606,13 +811,20 @@ G (D) & 6 & 1 & 2 & Passes test suite \\
 \label{tab:intlinkedlist}
 \end{table}
 
+The generic array list was easier due to only requiring the ownership of a
+single pointer. However, this program was also difficult to implement in Rust
+due to requiring dynamic allocation of memory. There is currently no safe way
+to allocate an array of a generic type, so the only way to complete the program
+without resorting to unsafe allocation is to use \texttt{Vec}, which is a
+dynamic array in itself.
+
 \begin{table}[h]
 \centering
 \begin{tabular}{lrrrp{5cm}}
 \toprule
 Volunteer & Syntax & Logic & Resource & Notes \\
 \midrule
-B (Rust) & & & & \\
+B (Rust) & 1 & 0 & 0 & Did not finish \\
 D (D) & 2 & 0 & 0 & Passes test suite \\
 G (D) & 4 & 0 & 0 & Passes, \texttt{head()} and \texttt{tail()} not implemented \\
 \bottomrule
@@ -621,13 +833,16 @@ G (D) & 4 & 0 & 0 & Passes, \texttt{head()} and \texttt{tail()} not implemented 
 \label{tab:genericarraylist}
 \end{table}
 
+Unfortunately, at this point in the study I no longer had any volunteers on
+the Rust side. However, the D volunteers had little trouble implementing the
+mergesort algorithm.
+
 \begin{table}[h]
 \centering
 \begin{tabular}{lrrrp{5cm}}
 \toprule
 Volunteer & Syntax & Logic & Resource & Notes \\
 \midrule
-B (Rust) & & & & \\
 D (D) & 3 & 1 & 0 & Passes test suite \\
 G (D) & 3 & 2 & 0 & Passes test suite \\
 \bottomrule
@@ -635,6 +850,8 @@ G (D) & 3 & 2 & 0 & Passes test suite \\
 \caption{Parallel mergesort error log summary}
 \label{tab:parallelmergesort}
 \end{table}
+
+No volunteer was able to correctly implement the brainfuck interpreter.
 
 \begin{table}[h]
 \centering
@@ -652,7 +869,137 @@ G (D) & 4 & 1 & 0 & Fails test suite \\
 
 \section{Evaluation}
 
+Based on my own experiences with the implementation of my programs, and the
+experiences of the volunteers of my study, I have assessed both Rust and D as
+productive languages. I explore the strengths and weaknesses of both languages
+through the context of each of the programs.
+
+Since the error logs are self reported, it would not be productive to form an
+analysis based on the numbers themselves. However, it is possible to observe
+some overall trends, and draw conclusions based upon those trends and my own
+experiences with the implementation of the programs of my study.
+
+For the sentence splitter, the algorithm that I chose to implement for my
+solution depends on manipulating a pointer to the string of data that contains
+the paragraph to split. Due to the pointer manipulation, it was easier to use D
+for this algorithm. However, it was very easy to encounter range violations in
+D, which is a runtime error. Since my Rust implementation used Rust's
+iterators, it was easy to verify that I wasn't iterating over the same
+characters multiple times.
+
+The data structures offered some very interesting data. Rust in particular
+offered some real challenges. I sympathize with the Rust volunteer who
+struggled with implementing the linked list. Though Rust does offer the
+programmer the ability to venture into memory unsafe territory, it is hard for
+a beginner to determine when this is the correct choice.
+
+The Rust volunteer that completed these structures was very frustrated by these
+assignments. This is due to the fact that it is very difficult to implement
+these structures without resorting to \texttt{unsafe} facilities of the
+language. Thankfully, Rust's standard library provides dynamic arrays and
+linked lists in the standard library, but I imagine that it would be very
+difficult to implement data structures that require pointer manipulation or
+cycles as a beginner.
+
+The parallel mergesort was an especially successful exercise. Both volunteers
+were able to complete it, and the errors that they encountered were indicative
+of the problems that are difficult to avoid in D. Most of the errors
+encountered were syntax errors, but the logic errors that arose were range
+violations, which were particular to D. However, I expect that if more Rust
+volunteers had completed this program I would have encountered a similar
+distribution of off-by-one errors in vector accesses.
+
+I was surprised with the results of the Brainfuck interpreter. Each volunteer
+completed the program, but the programs were not correct. The ``Hello World''
+program used to test the interpreters was meant to expose bugs in
+interpreters, so perhaps the programs worked as expected on simpler inputs.
+This example did not expose any particular differences between the languages.
+
+Overall, it was interesting to see how beginners approached the languages
+differently. While some people embraced the idioms of the new languages, some
+volunteers attempted to code Java- or C++-like code, which could have hindered
+them.
+
+As for the study itself, there were a few things that I would have changed. I
+was disappointed with the attrition of volunteers that the study suffered as
+the semester got busier. Other studies have permitted volunteers to leave tasks
+unfinished~\cite{Hoppe:2013:DBG:2509136.2509528}, but these studies had a much
+larger sample size and longer time frame. In a survey that I distributed after
+the study, some volunteers expressed that they would have appreciated more
+direction in their objectives. I originally wanted to give the volunteers as
+much freedom as possible in their schedule, but this made it difficult for some
+to stay on track.
+
+One volunteer suggested that I hold ``lab sessions'' to work on each program. I
+think that this would have been beneficial in helping the volunteers stay on
+schedule, as well as allowing me to more closely monitor the error logging
+process. Another volunteer proposed that more starter code be given out, as
+this would cut down on the implementation time.
+
+The volunteers generally liked the languages they were assigned and would be
+inclined to use them for personal projects. The reception towards D was warmer
+due to its similarity to C++ and Java, languages with which my volunteers were
+more familiar.
+
+Both D and Rust are improvements over C++. The increased power of their
+respective type systems, lack of required manual memory management, and
+compile-time features are attractive enough to warrant creating new programs
+in these languages. However, I believe that they occupy different needs.
+
+D definitely achieves its historical goal of being an easier-to-use C++. Its
+syntax obviates the need for many tedious-to-write constructs in C++. Less
+syntax generally meant more readable code. However, I found the unhelpful error
+messages a hindrance to development. I often had to open \texttt{gdb} to debug
+segmentation faults and range violations, which, in addition to being runtime
+errors, did not give line numbers in their error messages. If I needed to
+develop a fast prototype, I would consider using D.
+
+This goes along with the fact that D is generally more permissive than Rust. D
+will let you write constructs that could lead to runtime issues. This also is
+seen in the languages' policies towards mutability. While D programmers must
+opt into immutability by using the \texttt{const} or \texttt{immutable}
+keyword, Rust programmers must opt into \textit{mutability} by using the
+\texttt{mut} keyword. There are a number of optimization opportunities that
+are available to the compiler with immutable data, and the fact that Rust
+encourages immutability improves the chances that these optimizations can be
+made. It also forces the programmer to think about whether variables actually
+need to be mutable. Though Rust is less permissive in this regard, I think it
+is a huge boon to the language.
+
+As a beginner I found it very difficult to rapidly develop programs in Rust.
+However, the error messages were far more helpful than D, and the compiler
+disallowed constructs that I originally attempted because they were
+error-prone. I also found its syntax more readable. Not only are parentheses
+optional around expressions in block statements, the compiler actually emits a
+warning if they are present. This, along with other lint warnings emitted by
+the compiler ensure that Rust code has a consistent, readable style which
+contributes to the readability of arbitrary Rust code seen for the first time.
+
+I believe that both D and Rust have the potential to displace C++ as a systems
+language of choice. Rust is perhaps more useful for safety-critical
+applications, while D would be more useful for rapid development.
+
 \chapter{Conclusion}
+
+In this paper I have discussed and evaluated the D and Rust programming
+languages with a focus on productivity for beginners. I believe that both
+languages accomplish their design goals: D to make a more ergonomic C++, and
+Rust to bring memory safety to the forefront of a programmer's thought process.
+
+I examined the history and design philosophies of both languages and compared
+features that highlighted the deficiencies of C++ as a productive, safe
+language. I found that both D and Rust had sensible and useful alternatives to
+the C++ feature under scrutiny.
+
+I also performed a user study to examine how experienced C++ programmers
+used the new languages. My study, though suffering from a lack of data,
+confirmed my hypothesis that D would be easier to learn and develop into,
+though Rust would assist the programmers in avoiding bugs.
+
+Though there are many factors that determine what the true ``successor'' of
+C++ will be. Considering the amount of legacy code in production today, I
+doubt that C++ will ever be truly succeeded. However, I believe that both D
+and Rust have their place in software development in the future.
 
 \nocite{*}
 \bibliography{senior-project}
